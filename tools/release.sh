@@ -11,6 +11,10 @@ cd "$(dirname "$0")/.."
 export JIELI_TOOLCHAIN=${JIELI_TOOLCHAIN:-$HOME/.jieli/toolchain} AC79_SDK=${AC79_SDK:-$HOME/fw-AC79_AIoT_SDK}
 tools/run_tests.sh
 python3 base/tools/build.py app --release "$V" | grep -E "^  ok|^  FAIL|ERROR|^package"
+python3 base/tools/build.py app --web --release "$V" | grep -E "^emu|error"          # the emulator: the same firmware in WebAssembly
+rm -rf companion/emulator && mkdir -p companion/emulator
+cp app/build/emu/index.html app/build/emu/worklet.js app/build/emu/app.wasm app/build/emu/app*.js companion/emulator/
+cp -R app/build/emu/parts companion/emulator/
 PKG=app/build/jamtrack-$V.fwsc
 [ -f "$PKG" ] || PKG=$(ls -t app/build/jamtrack-*.fwsc | head -1)
 tools/companion_firmware.sh "$PKG" "$V"

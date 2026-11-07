@@ -1,5 +1,10 @@
 # Changelog
 
+## 0.1.1: the emulator
+
+- **The emulator:** the whole firmware compiled to WebAssembly, on a drawn FM-1, in the browser
+  (companion/emulator/, linked from the companion).
+
 ## 0.1.1
 
 - **PRESETS is one list of every jam, filed by genre:** a heading for each genre, your jams tagged with it, the

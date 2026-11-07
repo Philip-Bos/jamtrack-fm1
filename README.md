@@ -7,6 +7,7 @@
 </p>
 
 <p align="center">
+  <a href="https://philip-bos.github.io/jamtrack-fm1/emulator/"><b>Try it in your browser</b></a> ·
   <a href="https://philip-bos.github.io/jamtrack-fm1/flasher/"><b>Install it</b></a> ·
   <a href="https://philip-bos.github.io/jamtrack-fm1/"><b>Companion app</b></a> ·
   <a href="https://philip-bos.github.io/jamtrack-fm1/#guide">Guide</a> ·
@@ -42,6 +43,7 @@ chorus (part B) with a fill, end on a last hit, start and stop from a loop pedal
 - **Solo on the FM-1's keys** with three leads made for it (or any other sound), mono with glide, on their own level.
 - **Loop pedals:** MIDI clock in (START begins on the clock's first tick), STOP, CONTINUE, tap tempo, footswitch CCs.
 - **32 places** on the FM-1 for your jams, and as many as you like in the companion (and as files).
+- **The emulator:** the whole firmware in your browser, on a drawn FM-1: no FM-1 needed.
 - **The companion app** (Chrome or Edge): the jam editor, the library, the user kit, the FM-1's screen, the guide,
   and the installer.
 

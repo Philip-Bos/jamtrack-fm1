@@ -1617,7 +1617,7 @@ static float atan2_turns(float y, float x)   /* the angle clockwise from the top
         return 0.75f - r;
     return 0.75f + r;
 }
-static void ring(int32_t cx, int32_t cy, int32_t r1, int32_t r0, float frac, uint16_t on, uint16_t off, int32_t y0, int32_t h)
+static void chord_ring(int32_t cx, int32_t cy, int32_t r1, int32_t r0, float frac, uint16_t on, uint16_t off, int32_t y0, int32_t h)
 {
     int32_t x, y;
     for (y = cy - r1; y <= cy + r1; y++) {
@@ -1647,7 +1647,7 @@ static void draw_home_field(void)
     for (y0 = FIELD_Y; y0 < FIELD_Y + 144; y0 += 72) {
         band(y0, 72);
         /* the ring and the chord in it: its name big, its number small */
-        ring(RING_CX, RING_CY, 55, 49, frac, C_HI, C_LINE, y0, 72);
+        chord_ring(RING_CX, RING_CY, 55, 49, frac, C_HI, C_LINE, y0, 72);
         if (st->counting) {
             int_text(st->counting, t);
             text_c(RING_CX, RING_CY - 16 - y0, &FONT_L, t, C_AMB);
@@ -2167,6 +2167,27 @@ int app_host_cmd(const char *cmd, const char *a, const char *b, const char *c, c
                 plat_data_write(ksec_addr(i) + 100u, &z, 1);
                 break;
             }
+        return 1;
+    }
+    if (!strcmp(cmd, "jamset")) {        /* jamset OFFSET VALUE: a byte of the jam playing, as the companion sets it */
+        uint32_t o = (uint32_t)atoi(a);
+        if (o >= 20u && o < JT_JAM_BYTES) {
+            ((uint8_t *)jt_jam())[o] = (uint8_t)atoi(b);
+            jt_jam_sanitize(jt_jam());
+            jt_jam_changed(JX_ALL);
+            jt_mute(0, jt_jam()->mute & 1u);
+            ui_redraw_all = 1;
+        }
+        return 1;
+    }
+    if (!strcmp(cmd, "status")) {        /* status: where the band is (a video's frames lock to it) */
+        const jt_status_t *st = jt_status();
+        char num[16], nm[16];
+        const jt_part_t *p = &jt_jam()->part[st->part & 1];
+        jt_chord_text(jt_jam(), &p->c[st->chord < p->n ? st->chord : 0], num, nm);
+        printf("  status playing %u bar %u beat %u seq %u part %u chord %u step %u len %u key %u name %s num %s\n",
+               st->playing, st->bar, st->beat, st->beat_seq, st->part, st->chord, st->chord_step, st->chord_len,
+               jt_jam()->key, nm, num);
         return 1;
     }
     if (!strcmp(cmd, "skew")) {          /* skew MS: the pickers' turns stamped MS late (a clock that ticks mid-pass) */
