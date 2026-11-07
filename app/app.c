@@ -8,14 +8,14 @@
  *   PLAY         start / stop (STOP MODE: at once, or at the end of the bar with a last hit)
  *   SEQ          part A / B (at the end of the round, or the next bar); held: a fill now
  *   REC          tap tempo; held: back to the top of the part at the next bar
- *   ARP          GENERATE: a new jam in the genre (on GROOVE pages the grooves only, on SOUND the sounds, on EDIT the
+ *   ARP          GENERATE: a new jam in the jam's genre (on GROOVE pages the grooves only, on SOUND the sounds, on EDIT the
  *                progressions); held: a whole new jam.   OCT- + OCT+ together: undo
  *   HOME EDIT ENV LFO FX GLO   pages (again: the group's next page). Hold HOME: what the page does
  *   SEL          which part EDIT and the PART page work on (A / B); held + a key: the key of the jam
  *   SAVE         save the jam (SELECT or PRESETS picks the slot, SAVE again to write)
  *   K1..K4       the page's four settings (blue, green, white, orange)
- *   SELECT       EDIT: the chord; elsewhere the tempo      ALGORITHM  the genre GENERATE draws from
- *   PRESETS      browse the jams: the one you stop on loads (playing: at the next bar)
+ *   SELECT       EDIT: the chord; elsewhere the tempo      ALGORITHM  the keys' instrument (chosen as PRESETS chooses)
+ *   PRESETS      every jam, filed by genre: the one you rest on plays 2.5 s later at the next bar (OCT+ now, OCT- no)
  *   keys         play along on the synth's sound (OCT- / OCT+: their octave); EDIT: the chord's number
  *   FX held      first four white keys: mute drums, bass, chords, synth; black keys: fill, part, restart, break */
 #include "fastmath.h"
@@ -32,6 +32,19 @@ static volatile float mute_target = 1.0f, mute_gain = 1.0f;
 
 #define NAME_N 12u
 #define NUSER 32
+/* milliseconds from t to now; 0 when t is later than now (a time taken after now was read, in the same pass: an
+ * unsigned now - t would wrap to 49 days, and every "long enough?" would say yes at once) */
+#ifdef PLAT_HOST
+static uint32_t host_skew;               /* (tests: the turns stamped this much late, as the FM-1's clock ticks mid-pass) */
+#define TURN_MS() (plat_ms() + host_skew)
+#else
+#define TURN_MS() plat_ms()
+#endif
+static uint32_t since(uint32_t now, uint32_t t)
+{
+    int32_t d = (int32_t)(now - t);
+    return d > 0 ? (uint32_t)d : 0u;
+}
 static void text_cpy(char *d, const char *s, uint32_t n)
 {
     uint32_t i;
@@ -404,7 +417,7 @@ void app_render(int32_t *lr, uint32_t n, uint32_t master_q12)
 
 void app_panic(void) { jt_panic(); }
 
-#define NGEN ((int)jt_count(JT_T_GENRE))  /* set.genre == NGEN: ALL */
+#define NGEN ((int)jt_count(JT_T_GENRE))
 static const char *genre_name(int g) { return g >= NGEN ? "ALL GENRES" : jt_name(JT_T_GENRE, (uint32_t)g); }
 
 /* ================================================================ the UI's state */
@@ -455,10 +468,10 @@ static const page_t PAGES[PG_N] = {
      {"TEMPO, KEY, SCALE, TIME.", "THE NUMBERS STAY:", "CHANGE THE KEY, THE SONG MOVES"}},
     {"MIDI", GR_GLO, {PR_CLKIN, PR_CLKOUT, PR_MIDICH, PR_SSIN},
      {"CLOCK IN (AUTO FOLLOWS ONE)", "CLOCK OUT OVER USB, CHANNEL,", "START/STOP FROM MIDI"}},
-    {"SYSTEM", GR_GLO, {PR_STOPMODE, PR_GENRE, PR_METRO, PR_OUTLVL},
-     {"STOP AT ONCE OR AT THE BAR,", "THE GENRE, A CLICK,", "THE OUTPUT'S CEILING"}},
+    {"SYSTEM", GR_GLO, {PR_STOPMODE, PR_KEYSND, PR_METRO, PR_OUTLVL},
+     {"STOP AT ONCE OR AT THE BAR,", "THE KEYS' SOUND, A CLICK,", "THE OUTPUT'S CEILING"}},
     {"KEYS", GR_GLO, {PR_KEYSND, PR_KLEVEL, PR_KMONO, PR_KVERB},
-     {"WHAT THE KEYS PLAY, THEIR OWN", "LEVEL; MONO SLIDES NOTE TO NOTE.", "SEL HELD + SELECT: THE SOUND"}},
+     {"WHAT THE KEYS PLAY (ALGORITHM", "TOO), THEIR LEVEL; MONO SLIDES", "NOTE TO NOTE"}},
     {"USER KIT", GR_GLO, {PR_KIT, PR_DTUNE, PR_GLUE, PR_WIDTH},
      {"YOUR OWN SAMPLES, ONE A DRUM,", "FROM THE COMPANION APP.", "KIT: USER ON THE SOUNDS PAGE"}},
 };
@@ -476,8 +489,8 @@ static struct {
     int save_mode, save_slot;
     int browse, browse_on;
     uint32_t browse_t;
-    int genre_on, genre_sel;
-    uint32_t genre_t;
+    int browse_from, keys_on, keys_sel;
+    uint32_t keys_t;
     uint32_t touched[4];
     uint32_t last_beat_seq;
     uint8_t live_held[NKEYS];
@@ -868,12 +881,12 @@ static void group_button(int g)
     page_go(ORDER[g][(i + 1) % NPG[g]]);
 }
 
-static void generate(int what)
+static void generate_in(int g, int what)  /* a new jam (or part of one) in genre g */
 {
     jt_jam_t j = *jt_jam();
     static uint32_t salt;
     uint32_t seed = plat_ms() * 2654435761u + plat_ticks24() + ++salt * 40503u;
-    int g = set.genre < jt_count(JT_T_GENRE) ? set.genre : jt_jam()->genre;
+    g = g >= 0 && g < (int)jt_count(JT_T_GENRE) ? g : jt_jam()->genre;
     jt_generate(&j, (uint32_t)g, seed, what);
     if (what != 0) {                     /* a part only: the name and the rest stay */
         j.mute = jt_jam()->mute;
@@ -886,6 +899,7 @@ static void generate(int what)
         app_say("GENERATED", what == JG_PROG ? "PROGRESSIONS" : what == JG_GROOVE ? "GROOVES" : "SOUNDS");
     notify(JX_ALL);
 }
+static void generate(int what) { generate_in(-1, what); }   /* in the jam's own genre */
 
 static void undo_do(void)
 {
@@ -931,7 +945,7 @@ static void transport(uint32_t op, uint32_t a, uint32_t b)
     case 6: if (a < JP_N) jt_mute(a, b != 0); ui.d_field = 1; break;
     case 7: jt_restart(); break;
     case 8: jt_audition((int)a & 1, (int)b); break;
-    case 9: set.genre = (uint8_t)(a % (jt_count(JT_T_GENRE) + 1u)); generate(b <= 3u ? (int)b : 0); break;
+    case 9: generate_in((int)(a % jt_count(JT_T_GENRE)), b <= 3u ? (int)b : 0); break;
     case 10: {
         jt_jam_t j;
         if (jam_get((int)a, &j) > 0)
@@ -948,40 +962,52 @@ static void transport(uint32_t op, uint32_t a, uint32_t b)
     }
 }
 
-/* the jams by genre. ALGORITHM picks a genre (or ALL); PRESETS then browses that genre's jams: yours tagged with it,
- * then the factory's, then NEW: a jam GENERATE makes in it. Codes: 0..31 a user slot, 0x80 + i a factory jam, 0xFE new */
-#define CODE_NEW 0xFE
+/* PRESETS: every jam in one list, filed by genre: a heading for each genre, then your jams tagged with it, then the
+ * factory's, then + NEW (a jam GENERATE makes in it). Turning moves through it (the headings are passed over); nothing
+ * loads while it turns: BROWSE_MS after the last turn the jam under the cursor plays (at the next bar), OCT+ now,
+ * OCT- never mind. Codes: 0..31 a user slot, 0x80 + i a factory jam, CODE_HEAD + g a heading, CODE_NEW + g new */
+#define CODE_HEAD 0x200
 static int abs_count(void) { return NUSER + NFACTORY; }          /* (program changes: every jam, in order) */
 static int abs_slot(int i) { return i < NUSER ? i : 0x80 + (i - NUSER); }
+#define CODE_NEW 0x300
+#define BROWSE_MS 2500u
 static int code_genre(int code)
 {
     if (code >= 0 && code < NUSER)
-        return jbank[code / 16].jam[code % 16].genre;
+        return jbank[code / 16].jam[code % 16].genre % NGEN;
     if (code >= 0x80 && code < 0x80 + NFACTORY)
         return FACTORY[code - 0x80].genre;
+    if (code >= CODE_HEAD)
+        return (code & 0xFF) % NGEN;
     return -1;
 }
-static int browse_list(int *codes)        /* the list for the genre -> its length */
+static int browse_codes[NUSER + 64 + 2 * 32], browse_n;
+static void browse_build(void)
 {
-    int i, n = 0, g = set.genre;
-    for (i = 0; i < NUSER; i++)
-        if (user_used(i, 0) && (g >= NGEN || code_genre(i) == g))
-            codes[n++] = i;
-    for (i = 0; i < NFACTORY; i++)
-        if (g >= NGEN || FACTORY[i].genre == g)
-            codes[n++] = 0x80 + i;
-    if (g < NGEN)
-        codes[n++] = CODE_NEW;
-    return n;
+    int g, i, n = 0;
+    for (g = 0; g < NGEN; g++) {
+        browse_codes[n++] = CODE_HEAD + g;
+        for (i = 0; i < NUSER; i++)
+            if (user_used(i, 0) && code_genre(i) == g)
+                browse_codes[n++] = i;
+        for (i = 0; i < NFACTORY; i++)
+            if (FACTORY[i].genre == g)
+                browse_codes[n++] = 0x80 + i;
+        browse_codes[n++] = CODE_NEW + g;
+    }
+    browse_n = n;
 }
+static int is_head(int code) { return code >= CODE_HEAD && code < CODE_NEW; }
 static void browse_label(int code, char *t)
 {
     char nm[JT_NAME];
     t[0] = 0;
-    if (code == CODE_NEW) {
-        text_cat(t, "+ NEW ");
-        text_cat(t, genre_name(set.genre));
-        text_cat(t, " JAM");
+    if (is_head(code)) {
+        t[0] = 1;                        /* (a heading: drawn as one) */
+        t[1] = 0;
+        text_cat(t, genre_name(code - CODE_HEAD));
+    } else if (code >= CODE_NEW) {
+        text_cat(t, "+ NEW JAM");
     } else if (code < NUSER) {
         t[0] = 'U';
         t[1] = (char)('0' + (code + 1) / 10);
@@ -989,32 +1015,32 @@ static void browse_label(int code, char *t)
         t[3] = ' ';
         t[4] = 0;
         text_cat(t, user_used(code, nm) ? nm : "---");
-    } else {
-        int f = code - 0x80 + 1;
-        t[0] = 'F';
-        t[1] = (char)('0' + f / 10);
-        t[2] = (char)('0' + f % 10);
-        t[3] = ' ';
-        t[4] = 0;
+    } else
         text_cat(t, FACTORY[code - 0x80].name);
-    }
 }
-static int browse_codes[NUSER + 64], browse_n;
 static void browse_turn(int e)
 {
-    int i;
-    browse_n = browse_list(browse_codes);
-    if (!ui.browse_on) {                 /* from the jam playing, when it is in the list */
-        ui.browse = 0;
-        for (i = 0; i < browse_n; i++)
+    int i, steps = e < 0 ? -e : e, dir = e < 0 ? -1 : 1;
+    if (!ui.browse_on) {                 /* the list from the jam playing (or its genre's heading) */
+        int g = jt_jam()->genre % NGEN, at = -1;
+        browse_build();
+        for (i = 0; i < browse_n && at < 0; i++)
             if (browse_codes[i] == cur_slot)
-                ui.browse = i;
-        if (browse_codes[ui.browse] != cur_slot)
-            e = e > 0 ? 0 : -1;          /* (not in it: the first one, or the last) */
+                at = i;
+        for (i = 0; i < browse_n && at < 0; i++)
+            if (browse_codes[i] == CODE_HEAD + g)
+                at = i + 1;
+        ui.browse = at < 0 ? 1 : at;
+        ui.browse_from = ui.browse;
+        ui.browse_on = 1;
+        steps = 0;                       /* (the first detent opens the list where you are) */
     }
-    ui.browse = wrapi(ui.browse + (e > 0 ? 1 : e < 0 ? -1 : 0), browse_n);
-    ui.browse_on = 1;
-    ui.browse_t = plat_ms();
+    while (steps--) {
+        ui.browse = wrapi(ui.browse + dir, browse_n);
+        if (is_head(browse_codes[ui.browse]))
+            ui.browse = wrapi(ui.browse + dir, browse_n);
+    }
+    ui.browse_t = TURN_MS();
     ui.d_field = 1;
 }
 static void browse_load(void)
@@ -1023,8 +1049,10 @@ static void browse_load(void)
     int code = browse_codes[wrapi(ui.browse, browse_n ? browse_n : 1)];
     ui.browse_on = 0;
     ui.d_field = 1;
-    if (code == CODE_NEW) {
-        generate(JG_ALL);
+    if (is_head(code) || code == cur_slot)
+        return;                          /* (back where it started: nothing to load) */
+    if (code >= CODE_NEW) {
+        generate_in(code - CODE_NEW, JG_ALL);
         return;
     }
     if (jam_get(code, &j) > 0) {
@@ -1033,32 +1061,47 @@ static void browse_load(void)
         notify(JX_ALL);
     }
 }
-/* ALGORITHM: a genre, looked at for 2 s (OCT+ now, OCT- never mind); then its first jam plays (at the next bar) */
-static void genre_turn(int e)
+
+/* ALGORITHM: the keys' instrument, the leads first, chosen as PRESETS chooses: the first detent opens the list on the
+ * sound playing, turning moves the cursor only, BROWSE_MS after the last detent the sound under it plays (OCT+ now,
+ * OCT- never mind) */
+static int keys_order[64], keys_n;
+static void keys_build(void)
 {
-    if (!ui.genre_on)
-        ui.genre_sel = set.genre;
-    ui.genre_sel = wrapi(ui.genre_sel + e, NGEN + 1);
-    ui.genre_on = 1;
-    ui.genre_t = plat_ms();
-    ui.browse_on = 0;
+    uint32_t i, pass;
+    keys_n = 0;
+    for (pass = 0; pass < 2; pass++)
+        for (i = 0; i < jt_count(JT_T_PATCH); i++)
+            if ((jt_patch_kind(i) & JK_POLY) && !(jt_patch_kind(i) & JK_LEAD) == (pass == 1))
+                keys_order[keys_n++] = (int)i;
+}
+static void keys_turn(int e)
+{
+    int i;
+    keys_build();
+    if (!ui.keys_on) {                   /* opens on the sound playing */
+        ui.keys_sel = 0;
+        for (i = 0; i < keys_n; i++)
+            if (keys_order[i] == set.eng.live_patch)
+                ui.keys_sel = i;
+        ui.keys_on = 1;
+        ui.browse_on = 0;
+    } else
+        ui.keys_sel = wrapi(ui.keys_sel + (e > 0 ? 1 : -1), keys_n);
+    ui.keys_t = TURN_MS();
     ui.d_field = 1;
 }
-static void genre_confirm(void)
+static void keys_load(void)
 {
-    ui.genre_on = 0;
-    ui.d_field = ui.d_head = 1;
-    if (ui.genre_sel == set.genre)
+    int p = keys_order[wrapi(ui.keys_sel, keys_n ? keys_n : 1)];
+    ui.keys_on = 0;
+    ui.d_field = ui.d_knobs = 1;
+    if (p == set.eng.live_patch)
         return;
-    set.genre = (uint8_t)ui.genre_sel;
-    set_dirty = 1;
-    changed_at = plat_ms();
-    if (set.genre < NGEN && code_genre(cur_slot) != set.genre) {
-        browse_n = browse_list(browse_codes);
-        ui.browse = 0;
-        browse_load();                   /* the genre's first jam (NEW when it has none) */
-    } else
-        app_say("GENRE", genre_name(set.genre));
+    jt_live_all_off();
+    set.eng.live_patch = (uint8_t)p;
+    settings_changed();
+    app_say("KEYS PLAY", jt_name(JT_T_PATCH, (uint32_t)p));
 }
 
 /* SAVE: the slot picked, then SAVE again */
@@ -1245,21 +1288,21 @@ static void input(void)
     if (press & (1u << B_ARP)) { ui.arp_t = now; ui.arp_used = 0; }
     if (press & (1u << B_HOME)) { ui.home_t = now; ui.home_used = 0; }
     if (press & (1u << B_FX)) { ui.fx_used = 0; ui.d_field = 1; }
-    if (held(B_SEQ) && !ui.seq_used && now - ui.seq_t > 500u) {
+    if (held(B_SEQ) && !ui.seq_used && since(now, ui.seq_t) > 500u) {
         ui.seq_used = 1;
         jt_fill();
         app_say("FILL", "");
     }
-    if (held(B_REC) && !ui.rec_used && now - ui.rec_t > 800u) {
+    if (held(B_REC) && !ui.rec_used && since(now, ui.rec_t) > 800u) {
         ui.rec_used = 1;
         jt_restart();
         app_say("FROM THE TOP", "NEXT BAR");
     }
-    if (held(B_ARP) && !ui.arp_used && now - ui.arp_t > 550u) {
+    if (held(B_ARP) && !ui.arp_used && since(now, ui.arp_t) > 550u) {
         ui.arp_used = 1;
         generate(JG_ALL);
     }
-    if (held(B_HOME) && !ui.home_used && now - ui.home_t > 500u) {
+    if (held(B_HOME) && !ui.home_used && since(now, ui.home_t) > 500u) {
         ui.home_used = 1;
         ui.d_field = 1;
     }
@@ -1312,11 +1355,11 @@ static void input(void)
         ui.browse_on = 0;
         ui.d_field = 1;
         press &= ~(1u << B_OCTDN);
-    } else if (ui.genre_on && (press & (1u << B_OCTUP))) {
-        genre_confirm();
+    } else if (ui.keys_on && (press & (1u << B_OCTUP))) {
+        keys_load();
         press &= ~(1u << B_OCTUP);
-    } else if (ui.genre_on && (press & (1u << B_OCTDN))) {
-        ui.genre_on = 0;
+    } else if (ui.keys_on && (press & (1u << B_OCTDN))) {
+        ui.keys_on = 0;
         ui.d_field = 1;
         press &= ~(1u << B_OCTDN);
     }
@@ -1402,7 +1445,7 @@ static void input(void)
             param_turn(PR_TEMPO, (int)e, 4);
     }
     if ((e = plat_enc(EN_ALGO)) != 0)
-        genre_turn((int)e);
+        keys_turn((int)e);
     if ((e = plat_enc(EN_PRESET)) != 0) {
         if (ui.save_mode) {
             ui.save_slot = wrapi(ui.save_slot + (int)e, NUSER);
@@ -1410,10 +1453,10 @@ static void input(void)
         } else
             browse_turn((int)e);
     }
-    if (ui.browse_on && now - ui.browse_t > 2000u)   /* 2 s to look before it loads (OCT+ now, OCT- never mind) */
+    if (ui.browse_on && since(now, ui.browse_t) > BROWSE_MS)   /* still a moment: the jam under the cursor plays */
         browse_load();
-    if (ui.genre_on && now - ui.genre_t > 2000u)
-        genre_confirm();
+    if (ui.keys_on && since(now, ui.keys_t) > BROWSE_MS)
+        keys_load();
     if (btn != ui.btn)
         ui.d_head = 1;
     ui.keys = keys;
@@ -1624,7 +1667,7 @@ static void draw_home_field(void)
         jt_key_text(j, t);
         text_r(236, FIELD_Y + 26 - y0, &FONT_XS, t, C_HI);
         t[0] = 0;
-        text_cat(t, set.genre < NGEN ? genre_name(set.genre) : genre_name(j->genre));
+        text_cat(t, genre_name(j->genre % NGEN));
         text_cat(t, "  ");
         text_cat(t, jt_name(JT_T_METER, j->meter));
         text_r(236, FIELD_Y + 6 - y0, &FONT_T, t, C_GRAY);
@@ -1751,34 +1794,48 @@ static void draw_param_field(void)
     band_end(FIELD_Y + 72);
 }
 
-static void draw_overlay(const char *title, const char *const *lines, int n, int hi)   /* a box over the field */
+/* a box over the field: a title and 7 lines (a line starting with \1 is a heading), line hi marked; frac >= 0 a bar
+ * under it all (a countdown) */
+static void overlay_line(int32_t y, const char *s, int hi)
+{
+    if (s[0] == 1) {                     /* a heading: amber, a rule after it */
+        int32_t x = cv_text(8, y, &FONT_T, s + 1, C_AMB);
+        cv_rect(x + 6, y + 6, 226 - x, 1, C_LINE);
+        return;
+    }
+    if (hi) {
+        cv_rect(2, y - 1, 236, 15, C_LINE);
+        cv_rect(2, y - 1, 3, 15, C_HI);
+    }
+    cv_text(14, y, &FONT_XS, s, hi ? C_WHITE : C_GRAY);
+}
+static void draw_overlay_bar(const char *title, const char *const *lines, int n, int hi, float frac)
 {
     int i;
     band(FIELD_Y, 72);
     cv_rect(0, 0, 240, 72, RGB(16, 16, 20));
     cv_text(8, 4, &FONT_B, title, C_HI);
     for (i = 0; i < n && i < 3; i++)
-        cv_text(8, 26 + i * 15, &FONT_XS, lines[i], i == hi ? C_WHITE : C_GRAY);
+        overlay_line(26 + i * 15, lines[i], i == hi);
     band_end(FIELD_Y);
     band(FIELD_Y + 72, 72);
     cv_rect(0, 0, 240, 72, RGB(16, 16, 20));
     for (i = 3; i < n && i < 7; i++)
-        cv_text(8, (i - 3) * 15 + 2, &FONT_XS, lines[i], i == hi ? C_WHITE : C_GRAY);
+        overlay_line((i - 3) * 15 + 2, lines[i], i == hi);
+    if (frac >= 0.0f) {
+        cv_rect(8, 66, 224, 3, C_LINE);
+        cv_rect(8, 66, (int32_t)(224.0f * fm_clampf(frac, 0, 1)), 3, C_HI);
+    }
     band_end(FIELD_Y + 72);
+}
+static void draw_overlay(const char *title, const char *const *lines, int n, int hi)
+{
+    draw_overlay_bar(title, lines, n, hi, -1.0f);
 }
 
 static void draw_field(void)
 {
     uint32_t now = plat_ms();
-    if (now < ui.msg_until) {            /* a message, big */
-        band(FIELD_Y, 72);
-        band_end(FIELD_Y);
-        band(FIELD_Y + 72, 72);
-        text_c(120, 0, &FONT_M, ui.msg[0], C_WHITE);
-        text_c(120, 30, &FONT_B, ui.msg[1], C_HI);
-        band_end(FIELD_Y + 72);
-        return;
-    }
     if (ui.save_mode) {
         char l[7][24];
         const char *ls[7];
@@ -1791,32 +1848,41 @@ static void draw_field(void)
         draw_overlay(user_used(ui.save_slot, 0) ? "SAVE: REPLACE?" : "SAVE TO", ls, 7, 3);
         return;
     }
-    if (ui.browse_on) {
-        char l[7][24];
+    if (ui.browse_on) {                  /* the list, the cursor in the middle, the countdown under it */
+        char l[7][24], title[40] = "";
         const char *ls[7];
-        int i;
-        char title[32] = "";
+        int i, k, g = code_genre(browse_codes[ui.browse]);
+        uint32_t el = since(plat_ms(), ui.browse_t), left = BROWSE_MS - (el < BROWSE_MS ? el : BROWSE_MS);
         for (i = 0; i < 7; i++) {
-            int k = ui.browse + i - 3;
-            l[i][0] = 0;
-            if (browse_n > 6 || (k >= 0 && k < browse_n))
-                browse_label(browse_codes[wrapi(k, browse_n)], l[i]);
+            k = wrapi(ui.browse + i - 3, browse_n);
+            browse_label(browse_codes[k], l[i]);
             ls[i] = l[i];
         }
-        text_cat(title, genre_name(set.genre));
-        text_cat(title, "  (OCT+ NOW)");
-        draw_overlay(title, ls, 7, 3);
+        text_cat(title, genre_name(g));
+        draw_overlay_bar(title, ls, 7, 3, browse_codes[ui.browse] == cur_slot ? -1.0f : 1.0f - (float)left / (float)BROWSE_MS);
         return;
     }
-    if (ui.genre_on) {
+    if (ui.keys_on) {                    /* ALGORITHM: the keys' instrument, the countdown under it */
         char l[7][20];
         const char *ls[7];
-        int i;
+        int i, p;
+        uint32_t el = since(plat_ms(), ui.keys_t), left = BROWSE_MS - (el < BROWSE_MS ? el : BROWSE_MS);
+        keys_build();
         for (i = 0; i < 7; i++) {
-            text_cpy(l[i], genre_name(wrapi(ui.genre_sel + i - 3, NGEN + 1)), 20);
+            text_cpy(l[i], jt_name(JT_T_PATCH, (uint32_t)keys_order[wrapi(ui.keys_sel + i - 3, keys_n)]), 20);
             ls[i] = l[i];
         }
-        draw_overlay("GENRE  (OCT+ NOW)", ls, 7, 3);
+        p = keys_order[wrapi(ui.keys_sel, keys_n)];
+        draw_overlay_bar("THE KEYS PLAY", ls, 7, 3, p == set.eng.live_patch ? -1.0f : 1.0f - (float)left / (float)BROWSE_MS);
+        return;
+    }
+    if (now < ui.msg_until) {            /* a message, big (under a list being chosen from) */
+        band(FIELD_Y, 72);
+        band_end(FIELD_Y);
+        band(FIELD_Y + 72, 72);
+        text_c(120, 0, &FONT_M, ui.msg[0], C_WHITE);
+        text_c(120, 30, &FONT_B, ui.msg[1], C_HI);
+        band_end(FIELD_Y + 72);
         return;
     }
     if (held(B_FX)) {
@@ -1866,7 +1932,7 @@ static void draw_knobs(void)
         int32_t x = i * 60;
         char t[24];
         float v = param_norm(id);
-        int lit = ui.touched[i] && plat_ms() - ui.touched[i] < 600u;
+        int lit = ui.touched[i] && since(plat_ms(), ui.touched[i]) < 600u;
         if (id == PR_NONE)
             continue;
         text_c(x + 30, 6, &FONT_T, PR_LABEL[id], KNOB_RGB[i]);
@@ -1926,13 +1992,13 @@ static void housekeeping(void)
         pending_on = 0;
         jam_apply(&pending_jam, pending_slot);
     }
-    if (backup_hold || st->playing || now - stopped_at < 1500u)
+    if (backup_hold || st->playing || since(now, stopped_at) < 1500u)
         return;                          /* never a flash write while the band plays */
     if (bank_pending[0])
         bank_write_now(0);
     if (bank_pending[1])
         bank_write_now(1);
-    if ((ses_dirty || set_dirty) && now - changed_at > 3000u) {
+    if ((ses_dirty || set_dirty) && since(now, changed_at) > 3000u) {
         if (set_dirty) {
             set.eng = *jt_settings();
             if (plat_store_save(OBJ_SETTINGS, &set, sizeof set) == 0)
@@ -1971,6 +2037,12 @@ void app_frame(void)
     }
     if (st->queued && ui.page == PG_HOME && (now / 150u) != last_msg)
         ui.d_field = 1;
+    {
+        static uint32_t tick100;
+        if ((ui.browse_on || ui.keys_on) && now / 100u != tick100)
+            ui.d_field = 1;              /* (the countdown, ten times a second) */
+        tick100 = now / 100u;
+    }
     last_msg = now / 150u;
     if ((uint32_t)(st->bpm * 2.0f) != last_bpm || st->ext != last_ext) {
         last_bpm = (uint32_t)(st->bpm * 2.0f);
@@ -1990,7 +2062,7 @@ void app_frame(void)
         static uint32_t lit_until;
         int i;
         for (i = 0; i < 4; i++)
-            if (ui.touched[i] && now - ui.touched[i] < 700u && now - ui.touched[i] > 600u)
+            if (ui.touched[i] && since(now, ui.touched[i]) < 700u && since(now, ui.touched[i]) > 600u)
                 lit_until = 1;
         if (lit_until) {
             lit_until = 0;
@@ -2097,9 +2169,12 @@ int app_host_cmd(const char *cmd, const char *a, const char *b, const char *c, c
             }
         return 1;
     }
+    if (!strcmp(cmd, "skew")) {          /* skew MS: the pickers' turns stamped MS late (a clock that ticks mid-pass) */
+        host_skew = (uint32_t)atoi(a);
+        return 1;
+    }
     if (!strcmp(cmd, "generate")) {      /* generate GENRE */
-        set.genre = (uint8_t)atoi(a);
-        generate(JG_ALL);
+        generate_in(atoi(a), JG_ALL);
         return 1;
     }
     if (!strcmp(cmd, "factory")) {       /* factory N: that factory jam */
@@ -2135,7 +2210,9 @@ int app_expect(const char *what, int *got)
     else if (!strcmp(what, "cursor")) *got = ui.cursor;
     else if (!strcmp(what, "editpart")) *got = ui.edit_part;
     else if (!strcmp(what, "deg")) *got = edit_part()->c[ui.cursor].deg;
-    else if (!strcmp(what, "genre")) *got = set.genre;
+    else if (!strcmp(what, "genre")) *got = jt_jam()->genre;
+    else if (!strcmp(what, "livepatch")) *got = set.eng.live_patch;
+    else if (!strcmp(what, "browsing")) *got = ui.browse_on;
     else if (!strcmp(what, "kit_ok")) *got = (int)kit_count_ok();
     else if (!strncmp(what, "kitstate", 8)) *got = kslot_state[atoi(what + 8) % KIT_SLOTS];
     else if (!strcmp(what, "users")) {

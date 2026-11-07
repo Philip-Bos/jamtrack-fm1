@@ -35,7 +35,7 @@ chorus (part B) with a fill, end on a last hit, start and stop from a loop pedal
 - **26 sounds and 10 kits**, all made from scratch: acoustic kits (VINTAGE, STUDIO, ROOM, BRUSHES, LO-FI, ROCK,
   CAJON), drum machines (LM-80, RHYTHM BOX, 808), and a **USER kit** from your own samples.
 - **Every time signature it needs:** 4/4, 3/4, 6/8, 12/8, 2/4, 5/4, 7/8. Every groove plays in all of them.
-- **38 factory jams** browsed by genre, and **GENERATE**: a new jam in the genre at a press, or only new chords,
+- **38 factory jams** in one list filed by genre, and **GENERATE**: a new jam at a press, or only new chords,
   grooves or sounds.
 - **A ring around the chord playing** fills as it plays, so you always know when the change comes; the keys light
   up the chord's notes and the scale, a map to solo over.
@@ -58,14 +58,14 @@ chorus (part B) with a fill, end on a last hit, start and stop from a loop pedal
 | **PLAY** | start / stop (STOP MODE: at once, or at the bar's end with a last hit) |
 | **SEQ** | part A / B, at the end of the round with a fill (held: a fill now) |
 | **REC** | tap tempo (held: from the top of the part) |
-| **ALGORITHM** | the genre: its first jam starts 2 s after you stop turning (OCT+: now, OCT-: never mind) |
-| **PRESETS** | browse the genre's jams the same way; the last one, **+ NEW**, generates one |
-| **ARP** | GENERATE in the genre; on EDIT the chords, on LFO the grooves, on ENV the sounds (held: a whole new jam). **OCT- + OCT+**: undo |
+| **PRESETS** | every jam, filed by genre: keep turning to reach the next genre. Nothing changes while you turn; 2.5 s after you stop, the jam under the cursor starts at the next bar (OCT+: now, OCT-: never mind). Each genre ends with **+ NEW JAM** |
+| **ALGORITHM** | the instrument the keys play (the leads first), chosen the same way: it changes 2.5 s after you stop turning |
+| **ARP** | GENERATE in the jam's genre; on EDIT the chords, on LFO the grooves, on ENV the sounds (held: a whole new jam). **OCT- + OCT+**: undo |
 | **SEL** | which part EDIT works on; **held + a key**: the jam's key |
 | **SAVE** | SAVE again to keep the jam (SELECT picks the place) |
 | **HOME · EDIT · ENV · LFO · FX · GLO** | pages; again for the group's next page; hold HOME: what the page does |
-| **K1–K4** | the page's four settings. SELECT: the tempo (on EDIT: the chord; SEL held: the keys' sound) |
-| **keys** | play along on their own sound (SOLO LEAD by default; GLO → KEYS); their lights show the chord and the scale |
+| **K1–K4** | the page's four settings. SELECT: the tempo (on EDIT: the chord) |
+| **keys** | play along on their own sound (SOLO LEAD by default; ALGORITHM changes it); their lights show the chord and the scale |
 | **FX held + keys** | white 1–4 mute drums / bass / chords / synth; black: fill, part, from the top, break, drums out |
 
 The companion's **[Guide](https://philip-bos.github.io/jamtrack-fm1/#guide)** has the chords, the MIDI CC map and the

@@ -1,5 +1,19 @@
 # Changelog
 
+## 0.1.1
+
+- **PRESETS is one list of every jam, filed by genre:** a heading for each genre, your jams tagged with it, the
+  factory's, then **+ NEW JAM**; keep turning to reach the next genre. Nothing loads while you turn: 2.5 s after the
+  last detent the jam under the cursor starts at the next bar, a bar under the list counting down. The first detent
+  opens the list where you are. OCT+ loads now, OCT- never mind.
+- **ALGORITHM picks the instrument the keys play** (the leads first), the way PRESETS picks a jam: nothing changes
+  while it turns, the sound under the cursor plays 2.5 s after it stops (OCT+ now, OCT- never mind). It no longer
+  chooses a genre.
+- Fixed: the PRESETS and ALGORITHM lists could close the moment they opened and load at once. A turn stamped a
+  millisecond after the panel's pass began read as 49 days ago (an unsigned difference); every "long enough?" on
+  the panel now counts such a time as no time at all. While a list is up it is drawn over any message.
+- The USER KIT page: readable drum labels, and its knobs are the kit, its tuning, glue and width.
+
 ## 0.1
 
 The first release.

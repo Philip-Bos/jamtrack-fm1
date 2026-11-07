@@ -119,10 +119,91 @@ expect slot 0
 expect users 1
 expect playing 0
 
-# ---- PRESETS: browse to the factory's first (after U01), it loads when the knob stops
+# ---- PRESETS: one list filed by genre. The first detent opens it where you are (U01, INDIE POP); nothing loads while
+# it turns, even slowly; 2.5 s after the last detent the jam under the cursor plays
 turn PRESET 1
-wait 2300
+wait 100
+expect browsing 1
+expect slot 0
+turn PRESET 1
+wait 2700
+expect browsing 0
 expect slot 128
+turn PRESET 7 400
+expect browsing 1
+expect slot 128
+wait 1500
+expect slot 128
+wait 1300
+expect browsing 0
+expect genre 1
+# ---- the FM-1's clock ticks during a pass: a turn stamped a millisecond after the pass began must not count as long
+# ago (it once loaded at once, the list gone in a flash), turning either way
+skew 1
+turn PRESET 1
+wait 60
+expect browsing 1
+turn PRESET 2 300
+wait 60
+expect browsing 1
+turn PRESET -1 300
+wait 60
+expect browsing 1
+wait 1000
+expect browsing 1
+wait 1700
+expect browsing 0
+expect genre 1
+turn ALGO 1
+wait 60
+expect livepatch 26
+turn ALGO 1
+wait 60
+turn ALGO -1
+wait 60
+expect livepatch 26
+wait 3000
+expect livepatch 26
+skew 0
+# ---- OCT- never mind; OCT+ at once
+turn PRESET 2
+wait 300
+tap OCT-
+wait 3000
+expect browsing 0
+expect genre 1
+turn PRESET 1
+turn PRESET 1
+wait 100
+tap OCT+
+wait 50
+expect browsing 0
+# ---- ALGORITHM: the keys' instrument, chosen as PRESETS chooses: nothing changes while it turns, 2.5 s after it
+# stops the sound under the cursor plays; OCT- never mind, OCT+ now; the jam untouched
+expect livepatch 26
+turn ALGO 1
+wait 100
+expect livepatch 26
+turn ALGO 3 400
+expect livepatch 26
+wait 1500
+expect livepatch 26
+wait 1300
+# (three detents on from SOLO LEAD, past WHISTLE and BRIGHT LEAD: RHODES, sound 8)
+expect livepatch 8
+expect genre 1
+turn ALGO 2
+wait 100
+tap OCT-
+wait 3000
+expect livepatch 8
+turn ALGO 1
+turn ALGO 1
+wait 100
+tap OCT+
+wait 50
+expect livepatch 9
+expect genre 1
 
 # ---- MIDI from a footswitch: CC 80 plays and stops, CC 81 switches part, CC 88 mutes the drums
 midi B0 50 7F
