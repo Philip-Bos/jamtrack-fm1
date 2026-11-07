@@ -1,0 +1,32 @@
+# JAMTRACK and a loop pedal: MIDI clock in. START waits for the first clock tick (the downbeat), the tempo is the
+# clock's, STOP stops, CONTINUE plays on; no clock for 0.6 s: our own tempo again.
+wait 1200
+expect playing 0
+midi FA 00 00
+wait 30
+expect playing 1
+clock 192 25
+expect ext 1
+expect bpm >98
+expect bpm <102
+clock 96 21
+expect bpm >116
+expect bpm <122
+midi FC 00 00
+wait 30
+expect playing 0
+midi FB 00 00
+clock 48 21
+expect playing 1
+expect ext 1
+wait 800
+expect ext 0
+midi FC 00 00
+wait 50
+expect playing 0
+# START without a clock: plays at once on its own tempo
+midi FA 00 00
+wait 400
+expect playing 1
+expect ext 0
+midi FC 00 00

@@ -1,0 +1,16 @@
+/* SPDX-License-Identifier: MIT
+ * Copyright (c) 2026 Philip Bos */
+/* JAMTRACK: the engine's tables by name, for the generator's genres and the app's factory jams. They follow the
+ * tables' orders in styles.h, patches.h and drums.h (engine.c checks the counts). */
+#pragma once
+enum { G_STRAIGHT, G_DREAMY, G_DISCO, G_HALF, G_BOSSA, G_SHUFFLE, G_FUNK, G_BALLAD, G_ROCK, G_MOTORIK, G_STOMP, G_TOMS,
+       G_TRAIN, G_BOOMBAP, G_LOFI, G_ONEDROP, G_JAZZ, G_MACHINE, G_PUNK, G_WALTZ };
+enum { B_ROOT8, B_MELODIC, B_OCT, B_SPARSE, B_TRES, B_FUNK, B_WALK, B_BOOGIE, B_TWO, B_WHOLE, B_HIPHOP, B_DROP, B_MOTOWN,
+       B_16, B_PEDAL, B_DISCO };
+enum { C_HOLD, C_HALVES, C_QUARTERS, C_EIGHTHS, C_STRUM, C_FOLK, C_OFFBEAT, C_STABS, C_BOSSA, C_SCRATCH, C_PICK, C_ARP,
+       C_TRES, C_BOOM, C_CHARL, C_PIANO };
+enum { P_FINGER, P_MUTED, P_PICK, P_SYNTHB, P_SUB, P_UPRIGHT, P_FRETLESS, P_MOOG, P_RHODES, P_WURLI, P_CLEAN, P_JANGLE,
+       P_NYLON, P_ACOUSTIC, P_ORGAN, P_JUNO, P_STRINGS, P_FELT, P_SOFTLEAD, P_SQUARE, P_POLY, P_BELLS, P_VIBES, P_FLUTE,
+       P_BRASS, P_PLUCK, P_SOLO, P_WHISTLE, P_BRIGHTLEAD };
+enum { K_VINTAGE, K_STUDIO, K_ROOM, K_BRUSH, K_LOFI, K_ROCK, K_CAJON, K_LM, K_BOX, K_808, K_USER };
+enum { SY_OFF, SY_PAD, SY_ARP8, SY_ARP16, SY_HOOK, SY_MELODY, SY_COUNTER, SY_PULSE, SY_BELLS, SY_STABS, SY_N };

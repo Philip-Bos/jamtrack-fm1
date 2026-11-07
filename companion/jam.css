@@ -1,0 +1,86 @@
+/* SPDX-License-Identifier: MIT
+ * Copyright (c) 2026 Philip Bos
+ * JAMTRACK companion: the jam editor, the library and the kit (app.css is ECHOFIELD's base) */
+:root { --amber: #ffb040; --p0: #ff7850; --p1: #50aaff; --p2: #ffc45a; --p3: #be87ff; }
+.brand .name { letter-spacing: .12em; }
+.c4 { background: var(--amber); }
+
+.transport .live { font-size: 14px; color: var(--muted); }
+.transport .live.ext { color: var(--k2); }
+.gen { margin-top: 12px; align-items: center; }
+label { display: inline-flex; gap: 6px; align-items: center; }
+label.grow { flex: 1; } label.grow input { flex: 1; min-width: 120px; }
+input, select { font: inherit; font-size: 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--card);
+  color: var(--ink); padding: 6px 8px; }
+input[type=number] { width: 80px; } input.seed { width: 64px; }
+input[type=range] { padding: 0; accent-color: var(--amber); }
+
+.parts { display: grid; gap: 16px; }
+.part h2 { margin: 0; }
+.part.playing { box-shadow: inset 4px 0 0 var(--amber), var(--shadow); }
+.chips { display: flex; gap: 6px; margin: 14px 0 10px; flex-wrap: wrap; }
+.chip { flex: 1 1 60px; min-width: 64px; display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 10px 6px;
+  border-radius: 10px; background: var(--card); border: 2px solid var(--line); }
+.chip b { font-size: 20px; } .chip small { color: var(--muted); font-size: 12px; }
+.chip.sel { border-color: var(--ink); }
+.chip.live { background: #3a2a10; border-color: var(--amber); color: #fff; } .chip.live small { color: var(--amber); }
+.chip.add { flex: 0 0 48px; min-width: 48px; font-size: 22px; color: var(--muted); justify-content: center; }
+.chord-ed { display: grid; gap: 10px; padding: 10px 12px; background: var(--card); border-radius: 10px; }
+.nums { display: flex; gap: 4px; flex-wrap: wrap; }
+.nums button { min-width: 44px; padding: 6px 8px; font-weight: 700; }
+.nums button.acc { font-weight: 500; color: var(--muted); }
+.nums button.on { background: var(--amber); color: #000; border-color: var(--amber); }
+.textrow { margin-top: 10px; align-items: center; }
+input.prog { flex: 1; min-width: 200px; }
+
+.grid2 { display: grid; gap: 16px; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); }
+.fields { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.field { display: grid; grid-template-columns: 110px 1fr auto; gap: 8px; align-items: center; font-size: 14px; }
+.field > span { color: var(--muted); }
+.field.chk { grid-template-columns: auto 1fr; }
+.field output { min-width: 32px; text-align: right; font-variant-numeric: tabular-nums; color: var(--muted); }
+.row .field { grid-template-columns: auto 1fr auto; }
+.mixer { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); }
+.strip { background: var(--card); border-radius: 10px; padding: 10px; display: grid; gap: 6px; border-top: 3px solid var(--line); }
+.strip .field { grid-template-columns: 54px 1fr 28px; }
+.strip.p0 { border-color: var(--p0); } .strip.p1 { border-color: var(--p1); } .strip.p2 { border-color: var(--p2); } .strip.p3 { border-color: var(--p3); }
+.strip button.mute { padding: 2px 10px; font-weight: 700; } .strip button.mute.on { background: var(--rec); color: #fff; border-color: var(--rec); }
+.meter { height: 4px; background: var(--line); border-radius: 2px; overflow: hidden; }
+.meter i { display: block; height: 100%; width: 0; background: var(--k2); transition: width .2s; }
+
+.slots { list-style: none; padding: 0; margin: 10px 0 0; display: grid; gap: 6px; }
+.slots li { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+.slots li.cur { outline: 2px solid var(--amber); }
+.slots .name { flex: 1; font-weight: 600; min-width: 160px; }
+.slots .acts { display: flex; gap: 6px; flex-wrap: wrap; }
+.slots .acts button, .slots .acts .btn { padding: 4px 10px; font-size: 13px; }
+.slots li.drop { outline: 2px dashed var(--amber); }
+.slots.kit li.ok .num { color: var(--k2); }
+button.danger:hover { border-color: var(--rec); color: var(--rec); }
+
+.guide table.cc { border-collapse: collapse; width: 100%; font-size: 14px; }
+.guide .cc td, .guide .cc th { border-bottom: 1px solid var(--line); padding: 6px 8px; text-align: left; vertical-align: top; }
+.guide .cc td:nth-child(odd) { font-weight: 700; white-space: nowrap; }
+.guide li { margin: 4px 0; }
+input.prog, .chip, .nums button, .chord-ed select { text-transform: none; }
+input.prog { width: auto; }
+.grid2 .card:has(> #mix) { grid-column: 1 / -1; }
+.mixer { grid-template-columns: repeat(auto-fit, minmax(190px, 1fr)); }
+.strip { min-width: 0; }
+.strip .field { grid-template-columns: 52px minmax(0, 1fr) 30px; }
+.strip .field input[type=range] { width: 100%; min-width: 0; }
+#mix { min-width: 0; }
+.mixer { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+.strip { overflow: hidden; }
+.strip .field { display: grid; grid-template-columns: 46px minmax(0, 1fr) 26px; gap: 6px; }
+.strip { grid-template-columns: minmax(0, 1fr); } .strip > * { min-width: 0; }
+
+.nums button { display: inline-flex; flex-direction: column; align-items: center; min-width: 64px; font-weight: 700; }
+.nums button small { font-weight: 400; font-size: 11px; color: var(--muted); }
+.nums button.on small { color: #000; }
+.nums.small button { min-width: 52px; font-size: 13px; }
+details.other summary { cursor: pointer; color: var(--muted); font-size: 13px; }
+details.other .nums { margin-top: 8px; }
+.chip { color: var(--ink); } .chip b { color: var(--ink); } .chip small { color: var(--muted); }
+.chip.live b { color: #fff; }
+.grid2 { grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); }

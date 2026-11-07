@@ -1,0 +1,163 @@
+# JAMTRACK FM-1 on the host simulator: boot, the band, the parts, the editor, saving across reboots, the user kit,
+# MIDI from a footswitch.   tools/build.py app --host, then app/build/host/jamtrack_host app/tests/basic.txt OUTDIR
+
+# ---- the first start: the first factory jam, stopped, quiet
+wait 1200
+expect slot 128
+expect playing 0
+expect page 0
+peakreset
+wait 500
+expect peak_db_max -80
+
+# ---- PLAY: the band plays
+tap PLAY
+expect playing 1
+wait 3000
+peakreset
+wait 2000
+expect peak_db_min -30
+expect peak_db_max 0
+
+# ---- SEQ: B queued, then B at the end of the round
+tap SEQ
+wait 50
+expect queued 1
+wait 12000
+expect part 1
+expect queued 0
+tap SEQ
+wait 12000
+expect part 0
+
+# ---- tap tempo: four taps 500 ms apart: 120 BPM
+tap REC
+wait 450
+tap REC
+wait 450
+tap REC
+wait 450
+tap REC
+wait 100
+expect bpm10 >1080
+expect bpm10 <1220
+
+# ---- the key: SEL held + a key (C4 is key 7: F3 is key 0)
+press SEL
+wait 30
+key 7 down
+wait 30
+key 7 up
+wait 30
+release SEL
+wait 50
+expect key 0
+expect dirty 1
+
+# ---- stop
+tap PLAY
+wait 300
+expect playing 0
+
+# ---- the editor: EDIT, a chord added, its number from a key, removed again
+tap EDIT
+expect page 1
+expect nchords 5
+tap OCT+
+expect nchords 6
+expect cursor 1
+key 9 down
+wait 30
+key 9 up
+wait 30
+# (D4: the 2 of C major)
+expect deg 1
+tap OCT-
+expect nchords 5
+tap SEL
+expect editpart 1
+tap SEL
+expect editpart 0
+
+# ---- page groups: ENV twice: MIX; LFO: STYLES
+tap ENV
+expect page 2
+tap ENV
+expect page 3
+tap LFO
+expect page 7
+tap HOME
+wait 600
+expect page 0
+
+# ---- GENERATE: a new jam (not from a slot), undo brings the last one back
+tap ARP
+wait 50
+expect slot -1
+press OCT-
+press OCT+
+wait 30
+release OCT-
+release OCT+
+wait 50
+expect slot -1
+
+# ---- SAVE into U01, then a factory jam, then U01 again from the session after a reboot
+tap SAVE
+expect save_mode 1
+tap SAVE
+wait 100
+expect save_mode 0
+expect slot 0
+expect dirty 0
+expect users 1
+wait 6000
+expect sesdirty 0
+reboot
+wait 1200
+expect slot 0
+expect users 1
+expect playing 0
+
+# ---- PRESETS: browse to the factory's first (after U01), it loads when the knob stops
+turn PRESET 1
+wait 2300
+expect slot 128
+
+# ---- MIDI from a footswitch: CC 80 plays and stops, CC 81 switches part, CC 88 mutes the drums
+midi B0 50 7F
+midi B0 50 00
+wait 100
+expect playing 1
+midi B0 58 7F
+midi B0 58 00
+wait 50
+expect mute 1
+midi B0 58 7F
+midi B0 58 00
+wait 50
+expect mute 0
+midi B0 50 7F
+midi B0 50 00
+wait 300
+expect playing 0
+# ---- program change 1: U02 (empty) is skipped, so PC 32 is the first factory jam
+midi C0 21 00
+wait 100
+expect slot 129
+
+# ---- the user kit: a kick written, played, damaged, found at boot
+expect kit_ok 0
+kitwrite 0 9000
+expect kit_ok 1
+expect kitstate0 1
+reboot
+wait 1200
+expect kit_ok 1
+kitbreak 0
+reboot
+wait 1200
+expect kitstate0 2
+expect kit_ok 0
+kitwrite 0 5000
+expect kitstate0 1

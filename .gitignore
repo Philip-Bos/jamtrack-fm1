@@ -1,0 +1,9 @@
+.venv/
+node_modules/
+__pycache__/
+app/build/
+build/
+dist/
+docs/img/midi_out.txt
+.DS_Store
+.claude/

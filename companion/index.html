@@ -1,0 +1,216 @@
+<!doctype html>
+<!-- SPDX-License-Identifier: MIT -->
+<!-- Copyright (c) 2026 Philip Bos -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>JAMTRACK Companion</title>
+<meta name="description" content="Edit, save and share jams for JAMTRACK, the backing-band firmware for the M-VAVE FM-1">
+<link rel="stylesheet" href="app.css">
+<link rel="stylesheet" href="jam.css">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23111'/%3E%3Crect x='6' y='16' width='4' height='10' rx='1' fill='%23ffb040'/%3E%3Crect x='12' y='9' width='4' height='17' rx='1' fill='%23ffb040'/%3E%3Crect x='18' y='13' width='4' height='13' rx='1' fill='%23ffb040'/%3E%3Crect x='24' y='6' width='4' height='20' rx='1' fill='%23ffb040'/%3E%3C/svg%3E">
+</head>
+<body>
+<header class="top">
+  <div class="brand">
+    <span class="dots"><i class="c1"></i><i class="c2"></i><i class="c3"></i><i class="c4"></i></span>
+    <span class="name">JAMTRACK</span><span class="sub">companion</span>
+  </div>
+  <div class="conn">
+    <span id="status" class="pill off">not connected</span>
+    <button type="button" id="connect" class="primary">Connect the FM-1</button>
+    <a class="btn" href="flasher/">Install / update</a>
+  </div>
+</header>
+
+<nav class="tabs" role="tablist">
+  <button type="button" role="tab" data-tab="jam" aria-selected="true">Jam</button>
+  <button type="button" role="tab" data-tab="library">Library</button>
+  <button type="button" role="tab" data-tab="kit">User kit</button>
+  <button type="button" role="tab" data-tab="screen">Screen</button>
+  <button type="button" role="tab" data-tab="guide">Guide</button>
+</nav>
+
+<main>
+  <!-- ================================================================ the jam -->
+  <section id="tab-jam" class="tab" role="tabpanel">
+    <div class="card transport">
+      <div class="row wrap gap between">
+        <div class="row gap wrap">
+          <button type="button" id="t-play" class="primary">▶ Play</button>
+          <button type="button" id="t-stop">■ Stop</button>
+          <button type="button" id="t-part">A / B</button>
+          <button type="button" id="t-fill">Fill</button>
+          <button type="button" id="t-tap">Tap</button>
+          <button type="button" id="t-top">From the top</button>
+        </div>
+        <div class="live mono" id="live">—</div>
+      </div>
+      <div class="row wrap gap gen">
+        <label>Genre <select id="g-genre"></select></label>
+        <button type="button" id="g-all" class="ghost">✦ New jam</button>
+        <button type="button" id="g-prog" class="ghost">New chords</button>
+        <button type="button" id="g-groove" class="ghost">New grooves</button>
+        <button type="button" id="g-sound" class="ghost">New sounds</button>
+        <button type="button" id="g-undo" class="ghost">Undo</button>
+      </div>
+      <p id="jam-msg" class="msg" role="status"></p>
+    </div>
+
+    <div class="card">
+      <div class="row wrap gap">
+        <label class="grow">Name <input id="j-name" maxlength="15" spellcheck="false"></label>
+        <label>Key <select id="j-key"></select></label>
+        <label>Scale <select id="j-mode"></select></label>
+        <label>Time <select id="j-meter"></select></label>
+        <label>Tempo <input id="j-bpm" type="number" min="40" max="240" step="0.5"> BPM</label>
+      </div>
+    </div>
+
+    <div class="parts">
+      <div class="card part" data-part="0"></div>
+      <div class="card part" data-part="1"></div>
+    </div>
+
+    <div class="grid2">
+      <div class="card"><h3>The band</h3><div id="band" class="fields"></div></div>
+      <div class="card"><h3>Feel and flow</h3><div id="feel" class="fields"></div></div>
+      <div class="card"><h3>Mix</h3><div id="mix" class="mixer"></div></div>
+      <div class="card"><h3>Effects</h3><div id="fx" class="fields"></div></div>
+      <div class="card"><h3>The FM-1's keys (for soloing)</h3><div id="keys" class="fields"></div></div>
+    </div>
+  </section>
+
+  <!-- ================================================================ the library -->
+  <section id="tab-library" class="tab" role="tabpanel" hidden>
+    <div class="card">
+      <div class="row between wrap gap">
+        <h2>On the FM-1</h2>
+        <div class="row gap"><button type="button" id="lib-refresh" class="ghost">Refresh</button>
+          <button type="button" id="lib-backup" class="ghost">Back up all as a file</button></div>
+      </div>
+      <p class="muted small">32 places for your jams. <b>Save here</b> stores the jam that is playing.</p>
+      <ol id="lib-user" class="slots"></ol>
+      <p id="lib-msg" class="msg" role="status"></p>
+    </div>
+    <div class="card">
+      <div class="row between wrap gap">
+        <h2>On this computer</h2>
+        <div class="row gap"><label class="btn">Import jam files <input type="file" id="lib-import" accept=".json,.jam" multiple hidden></label>
+          <button type="button" id="lib-keep" class="ghost">Keep the jam playing here</button></div>
+      </div>
+      <p class="muted small">Kept in this browser, and as files you can share: as many as you like.</p>
+      <ol id="lib-local" class="slots"></ol>
+    </div>
+    <div class="card">
+      <h2>Factory jams</h2>
+      <ol id="lib-factory" class="slots"></ol>
+    </div>
+  </section>
+
+  <!-- ================================================================ the user kit -->
+  <section id="tab-kit" class="tab" role="tabpanel" hidden>
+    <div class="card">
+      <div class="row between wrap gap">
+        <h2>The user kit</h2>
+        <span id="kit-free" class="muted mono"></span>
+      </div>
+      <p class="muted small">One sample a drum. Drop a WAV on a drum, or press its <b>Choose</b>. A drum left empty plays the
+        STUDIO kit's. On the FM-1: <b>ENV</b> → SOUNDS → KIT: <b>USER</b>. Bright drums (hats, cymbals, percussion) are kept
+        as 8-bit mu-law, which never hisses; the others as ADPCM, which holds twice as long.</p>
+      <ol id="kit-list" class="slots kit"></ol>
+      <div class="progress" hidden id="kit-prog"><i></i></div>
+      <p id="kit-msg" class="msg" role="status"></p>
+    </div>
+  </section>
+
+  <!-- ================================================================ the screen -->
+  <section id="tab-screen" class="tab" role="tabpanel" hidden>
+    <div class="card screen-card">
+      <div class="row between wrap gap">
+        <h2>The FM-1's screen</h2>
+        <div class="row gap"><span id="mr-rate" class="muted mono"></span>
+          <label class="chk"><input type="checkbox" id="mr-control"> Play it from here</label>
+          <button type="button" id="mr-shot" class="ghost">Save PNG</button></div>
+      </div>
+      <div class="device">
+        <canvas id="mr-canvas" width="240" height="240" class="lcd" aria-label="the FM-1's screen, live"></canvas>
+        <div id="panel" class="panel" aria-label="the FM-1's panel"></div>
+      </div>
+      <p id="mr-msg" class="msg" role="status">Connect the FM-1: its screen shows here, pixel for pixel.</p>
+    </div>
+  </section>
+
+  <!-- ================================================================ the guide -->
+  <section id="tab-guide" class="tab guide" role="tabpanel" hidden>
+    <div class="card">
+      <h2>JAMTRACK in a minute</h2>
+      <ol>
+        <li><b>PLAY</b> starts the band, <b>PLAY</b> again stops it. <b>REC</b> taps the tempo.</li>
+        <li><b>SEQ</b> switches between part <b>A</b> and part <b>B</b> (a verse and a chorus): the change comes at the end of the
+          progression, with a fill. Hold <b>SEQ</b> for a fill now.</li>
+        <li>Turn <b>ALGORITHM</b> to pick a genre and <b>PRESETS</b> to browse its jams; the one you stop on starts 2 s later, at the next bar (<b>OCT+</b>: now, <b>OCT-</b>: never mind). The last in each genre's list makes a new one.</li>
+        <li>Press <b>ARP</b> for a new jam in the genre <b>ALGORITHM</b> shows. On a page group it changes only that: the
+          chords on EDIT, the grooves on LFO, the sounds on ENV. <b>OCT-</b> and <b>OCT+</b> together undo.</li>
+        <li>Hold <b>SEL</b> and press a key: the jam moves to that key. The numbers stay, so the song stays.</li>
+        <li>The keys play along on their own sound (a lead, by default): hold <b>SEL</b> and turn <b>SELECT</b> to change it, or GLO → KEYS. Their lights show the chord playing (bright) and the scale (dim).</li>
+        <li><b>SAVE</b>, then <b>SAVE</b> again, keeps the jam in one of 32 places.</li>
+      </ol>
+    </div>
+    <div class="card">
+      <h2>Nashville numbers</h2>
+      <p>Chords are written by their place in the key: in C major <b>1</b> is C, <b>4</b> is F, <b>5</b> is G, <b>6m</b> is
+        A minor. Change the key and the whole progression moves with it. Leave the quality out and the scale picks it
+        (AUTO; the jam's COLOR turns those into 7ths and 9ths). Write one in to choose: <code>maj7 m7 7 m7b5 sus2 sus4 add9
+        maj9 m9 9 6 m6 7sus4 m11 dim dim7 + mM7 madd9 13 6/9 5</code>. <code>b7</code> and <code>#4</code> are borrowed
+        chords; <code>/3 /5 /7</code> put that note in the bass, <code>/1</code> the key's root (a pedal); <code>:2</code>
+        makes a chord last two beats (one bar when left out).</p>
+      <p class="mono">1maj7 6m7 4maj7 5sus4:2 5:2 &nbsp;·&nbsp; 1m7 47 &nbsp;·&nbsp; 17:16 47:8 17:8 57:4 47:4 17:4 57:4</p>
+    </div>
+    <div class="card">
+      <h2>With a loop pedal</h2>
+      <p>Connect the pedal's MIDI out to the FM-1's MIDI in (the 3.5 mm TRS jack, or USB through a computer). Set the
+        pedal to send <b>MIDI clock</b> and <b>START/STOP</b>. Then:</p>
+      <ul>
+        <li>JAMTRACK follows the pedal's tempo whenever its clock runs (the screen shows <b>EXT</b> instead of BPM).</li>
+        <li>The pedal's START starts the band on its first clock tick, which is the downbeat. Its STOP stops the band.</li>
+        <li>Record a loop at the pedal's tempo, then start the band from the pedal: they play in time, every round.</li>
+        <li>No clock from your pedal? Tap the tempo with <b>REC</b> (or a footswitch on CC 83) while you play.</li>
+      </ul>
+      <p>GLO → MIDI: <b>CLOCK IN</b> (FOLLOW or IGNORE), <b>CLOCK OUT</b> over USB, the <b>CHANNEL</b>, <b>START/STOP</b> from MIDI.</p>
+    </div>
+    <div class="card">
+      <h2>MIDI control (footswitches)</h2>
+      <table class="cc">
+        <tr><th>CC</th><th>does</th><th>CC</th><th>does</th></tr>
+        <tr><td>80</td><td>play / stop</td><td>88–91</td><td>mute drums, bass, chords, synth (toggle)</td></tr>
+        <tr><td>81</td><td>part A / B</td><td>92 / 93</td><td>part A / part B</td></tr>
+        <tr><td>82</td><td>fill</td><td>24–27</td><td>mute drums, bass, chords, synth (held: 127 on, 0 off)</td></tr>
+        <tr><td>83</td><td>tap tempo</td><td>20–23</td><td>level of drums, bass, chords, synth</td></tr>
+        <tr><td>84</td><td>from the top</td><td>1</td><td>energy of the part</td></tr>
+        <tr><td>85 / 86</td><td>next / previous jam</td><td>PC n</td><td>jam n (0–31 yours, 32 on the factory's)</td></tr>
+        <tr><td>87</td><td>stop (with the ending, if STOP MODE says)</td><td>notes</td><td>played on the synth's sound</td></tr>
+      </table>
+      <p class="muted small">A footswitch's press (value 64 or more after less) acts; its release does nothing.</p>
+    </div>
+    <div class="card">
+      <h2>The panel</h2>
+      <table class="cc">
+        <tr><td>PLAY</td><td>start / stop</td><td>HOME</td><td>the PLAY page (held: what this page does)</td></tr>
+        <tr><td>SEQ</td><td>part A / B (held: fill)</td><td>EDIT</td><td>the progression: SELECT picks a chord, keys set its number (C = 1), OCT+ adds, OCT- removes</td></tr>
+        <tr><td>REC</td><td>tap tempo (held: from the top)</td><td>ENV</td><td>SOUNDS · MIX · TONE · REVERB SENDS · OCTAVES</td></tr>
+        <tr><td>ARP</td><td>generate (held: a whole new jam)</td><td>LFO</td><td>STYLES · FEEL · PART · FLOW</td></tr>
+        <tr><td>SEL</td><td>edit part A or B (held + key: the key)</td><td>FX</td><td>EFFECTS (held + keys: mutes, fill, break)</td></tr>
+        <tr><td>SAVE</td><td>save the jam</td><td>GLO</td><td>SONG · MIDI · SYSTEM · KEYS · USER KIT</td></tr>
+        <tr><td>SELECT</td><td>tempo (EDIT: the chord; SEL held: the keys' sound)</td><td>ALGORITHM</td><td>the genre: PRESETS browses it, ARP draws from it</td></tr>
+        <tr><td>PRESETS</td><td>browse the jams</td><td>K1–K4</td><td>the page's four settings</td></tr>
+      </table>
+    </div>
+  </section>
+</main>
+
+<footer class="foot muted small">JAMTRACK FM-1 · MIT · built on fm1-base and felucca-bsp (MPL-2.0) · not affiliated with M-VAVE</footer>
+<script type="module" src="app.js"></script>
+</body>
+</html>

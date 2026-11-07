@@ -1,0 +1,28 @@
+# JAMTRACK FM-1: build settings (fm1-base tools/build.py)
+name = "JAMTRACK"
+id_prefix = "FM-1_5268"         # package identity ("JAMT" on a phone keypad): dev builds FM-1_526800, releases
+                                # FM-1_5268XXYYZZ
+usb_manufacturer = "Philip Bos"
+usb_product = "JAMTRACK FM-1"
+o2 = ["dsp/engine.c"]           # the music engine at -O2, its own unit
+include = ["dsp"]
+words = "words.tsv"
+ble = false                     # no radio: the RAM is the band's
+usb_audio_in = true             # the FM-1 recordable over USB
+usb_audio_out = false
+midi_stamp = true               # MIDI in stamped where it lands: the clock followed to the sample
+mirror = true                   # the screen and panel on the computer (the companion's Screen)
+backup = true                   # jams and settings backed up over USB
+# the site and firmware.json for firmware hubs (fm1-base docs/FIRMWARE-JSON.md)
+title = "JAMTRACK"
+author = "PhilipsKnobs"
+tagline = "a backing band for the FM-1"
+description = "JAMTRACK turns the FM-1 into a backing band to play over: drums, bass, chords and a synth line follow a chord progression written in Nashville numbers, in any key and time signature. Indie, dream pop, bedroom, funk, folk, rock, blues, hip hop and more; acoustic and vintage drum kits plus one of your own; parts A and B, fills, endings, tap tempo and MIDI clock in, START and STOP from a loop pedal. Jams save, and the companion web app edits them."
+tags = ["groovebox", "arranger", "chords"]
+install = "https://philip-bos.github.io/jamtrack-fm1/flasher/"
+site = "https://philip-bos.github.io/jamtrack-fm1/"
+screenshot = "docs/card.png"
+repo = "https://github.com/Philip-Bos/jamtrack-fm1"
+licence = "MIT"
+credits = "Built on fm1-base (Charles Vestal) and felucca-bsp (Leo Kuroshita, Hügelton Instruments), MPL-2.0."
+font_full = ["M", "L"]           # lower case in the big fonts: chord names (m7, maj9, sus4)
