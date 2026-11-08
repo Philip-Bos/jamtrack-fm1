@@ -157,7 +157,7 @@ export class JamTrack {
       if (first >= total || !names.length) return out;
     }
   }
-  // slot: 0xFF the jam playing, 0..31 user, 0x80 + i factory -> {used, bytes}
+  // slot: 0xFF the jam playing, 0..31 user, 0x40 + i factory (0x80 + i before protocol 2) -> {used, bytes}
   async jamGet(slot = 0xFF) {
     const b = await this.check(CMD.JAM_GET, [slot], "read jam");
     return { used: !!b[1], bytes: Uint8Array.from(b.slice(3, 3 + JAM)) };
@@ -174,7 +174,8 @@ export class JamTrack {
     if (!b || b[0]) return null;
     return { playing: !!b[1], part: b[2], queued: !!b[3], chord: b[4], beat: b[5], counting: b[6], ext: !!b[7],
              ending: !!b[8], bar: rd16(b, 9), bpm: rd16(b, 11) / 10, slot: b[13], dirty: !!b[14], cpu: b[15],
-             peak: [b[16] / 250, b[17] / 250], levels: b.slice(18, 22), mute: b[22], beatSeq: rd32(b, 23) };
+             peak: [b[16] / 250, b[17] / 250], levels: b.slice(18, 22), mute: b[22], beatSeq: rd32(b, 23),
+             step: b.length > 27 ? b[27] : -1 };
   }
   transport(op, a = 0, b = 0) { return this.check(CMD.TRANSPORT, [op, a, b], "transport"); }
   slotOp(op, slot, name = "") { return this.check(CMD.SLOT_OP, [op, slot, ...nameN(name, 16)], "slot"); }

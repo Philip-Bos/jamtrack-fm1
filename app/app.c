@@ -326,7 +326,10 @@ static int slot_rename(int slot, const char *name)
         text_cpy(jt_jam()->name, jbank[slot / 16].jam[slot % 16].name, JT_NAME);
     return bank_commit(slot / 16);
 }
-static int cur_slot_wire(void) { return cur_slot < 0 ? 0xFF : cur_slot; }
+/* on the wire a slot is a byte: 0..31 user, 0x40 + i factory (inside, 0x80 + i), 0xFF none */
+#define FACTORY_WIRE 0x40
+static int cur_slot_wire(void) { return cur_slot < 0 ? 0xFF : cur_slot >= 0x80 ? FACTORY_WIRE + cur_slot - 0x80 : cur_slot; }
+static int slot_from_wire(int s) { return s >= FACTORY_WIRE && s < FACTORY_WIRE + NFACTORY ? 0x80 + s - FACTORY_WIRE : s; }
 static int session_dirty(void) { return jam_dirty; }
 static uint32_t settings_genre(void) { return set.genre; }
 
@@ -422,7 +425,7 @@ static const char *genre_name(int g) { return g >= NGEN ? "ALL GENRES" : jt_name
 
 /* ================================================================ the UI's state */
 enum { PG_HOME, PG_EDIT, PG_SOUNDS, PG_MIX, PG_TONE, PG_SENDS, PG_OCT, PG_STYLES, PG_FEEL, PG_PART, PG_FLOW, PG_FX,
-       PG_SONG, PG_MIDI, PG_SYSTEM, PG_KEYS, PG_KIT, PG_N };
+       PG_SONG, PG_MIDI, PG_SYSTEM, PG_KEYS, PG_KIT, PG_LINE, PG_N };
 enum { GR_HOME, GR_EDIT, GR_SOUND, GR_GROOVE, GR_FX, GR_GLO };
 
 /* the knobs' settings */
@@ -431,7 +434,7 @@ enum { PR_NONE, PR_TEMPO, PR_KEY, PR_MODE, PR_METER, PR_ENERGY, PR_TAPE, PR_KIT,
        PR_DTUNE, PR_OCT1, PR_OCT2, PR_OCT3, PR_GROOVE, PR_BSTYLE, PR_CSTYLE, PR_SSTYLE, PR_SWING, PR_HUMAN, PR_PUSH,
        PR_COLOR, PR_VAR, PR_REPS, PR_SEED, PR_FILLS, PR_CHAIN, PR_SWITCH, PR_COUNT, PR_REV, PR_SPACE, PR_GLUE, PR_WIDTH,
        PR_CLKIN, PR_CLKOUT, PR_MIDICH, PR_SSIN, PR_STOPMODE, PR_KEYSND, PR_METRO, PR_OUTLVL, PR_CDEG, PR_CQUAL,
-       PR_CBEATS, PR_CBASS, PR_GENRE, PR_KLEVEL, PR_KMONO, PR_KVERB, PR_N };
+       PR_CBEATS, PR_CBASS, PR_GENRE, PR_KLEVEL, PR_KMONO, PR_KVERB, PR_LNOTE, PR_LVEL, PR_LLEN, PR_LMODE, PR_N };
 
 typedef struct {
     const char *title;
@@ -474,6 +477,8 @@ static const page_t PAGES[PG_N] = {
      {"WHAT THE KEYS PLAY (ALGORITHM", "TOO), THEIR LEVEL; MONO SLIDES", "NOTE TO NOTE"}},
     {"USER KIT", GR_GLO, {PR_KIT, PR_DTUNE, PR_GLUE, PR_WIDTH},
      {"YOUR OWN SAMPLES, ONE A DRUM,", "FROM THE COMPANION APP.", "KIT: USER ON THE SOUNDS PAGE"}},
+    {"MY LINE", GR_GROOVE, {PR_LNOTE, PR_LVEL, PR_LLEN, PR_LMODE},
+     {"SELECT: THE STEP. KEYS WRITE", "A NOTE, OCT- A REST, OCT+ HOLDS.", "ARP: A NEW LINE TO START FROM"}},
 };
 
 static struct {
@@ -497,6 +502,7 @@ static struct {
     uint8_t live_note[NKEYS];
     int upload_k, upload_n;
     uint8_t cc_last[128];
+    int line_cur, line_view;             /* MY LINE: the step at the cursor, the lowest note row on the screen */
 } ui;
 
 static const uint16_t KNOB_RGB[4] = {RGB(70, 150, 255), RGB(90, 220, 120), RGB(235, 235, 240), RGB(255, 140, 50)};
@@ -562,7 +568,8 @@ static const char *const PR_LABEL[PR_N] = {"", "TEMPO", "KEY", "SCALE", "TIME", 
                                            "PUSH", "COLOR", "ALT BEAT", "ROUNDS", "VARIATION", "FILLS", "CHAIN", "SWITCH",
                                            "COUNT-IN", "REVERB", "SPACE", "GLUE", "WIDTH", "CLOCK IN", "CLOCK OUT",
                                            "CHANNEL", "START/STOP", "STOP", "KEYS SOUND", "CLICK", "OUTPUT", "CHORD",
-                                           "TYPE", "BEATS", "BASS NOTE", "GENRE", "LEVEL", "MONO", "REVERB"};
+                                           "TYPE", "BEATS", "BASS NOTE", "GENRE", "LEVEL", "MONO", "REVERB",
+                                           "NOTE", "HOW HARD", "LENGTH", "FOLLOWS"};
 
 /* the 12 numbers a chord may have, as the scale spells them: its own degrees plain, the others flat in a major scale and
  * sharp in a minor one */
@@ -643,6 +650,105 @@ static uint32_t patch_step(uint32_t cur, int d, uint32_t kind)   /* the next sou
     return cur;
 }
 
+static int clampi(int v, int lo, int hi) { return v < lo ? lo : v > hi ? hi : v; }
+static int wrapi(int v, int n) { return ((v % n) + n) % n; }
+
+/* ---- MY LINE */
+static const char *const LVEL_NAME[4] = {"NORMAL", "SOFT", "LOUD", "ACCENT"};
+static const char *const LMODE_NAME[4] = {"CHORDS", "KEY", "CHORDS+SLIDE", "KEY+SLIDE"};
+static int line_mode(const jt_jam_t *j) { return ((j->line_set & JT_LS_KEY) ? 1 : 0) + ((j->line_set & JT_LS_SLIDE) ? 2 : 0); }
+static int line_idx(uint8_t v)           /* the NOTE knob's place: 0 a rest, 1 hold, 2.. the notes */
+{
+    return (v & 0x1Fu) ? (int)(v & 0x1Fu) + 1 : v == JT_LN_HOLD ? 1 : 0;
+}
+static void line_note_text(const jt_jam_t *j, uint8_t v, char *t)   /* "5 G", "3+ E": the number in the key, its note */
+{
+    int n = v & 0x1F, d = n - (int)JT_LN_ROOT, o = d >= 0 ? d / 7 : -((-d + 6) / 7), m = d - 7 * o;
+    char b[4];
+    t[0] = 0;
+    if (!n) {
+        text_cpy(t, v == JT_LN_HOLD ? "HOLD" : "REST", 6);
+        return;
+    }
+    int_text(m + 1, b);
+    text_cat(t, b);
+    text_cat(t, o > 0 ? (o > 1 ? "++ " : "+ ") : o < 0 ? "- " : " ");
+    text_cat(t, jt_note_name(jt_scale_pc(j, m), jt_key_flats(j)));
+}
+static void line_view_follow(void)       /* the cursor's note on the screen */
+{
+    int n = jt_jam()->line[ui.line_cur & 15] & 0x1F;
+    if (!ui.line_view)
+        ui.line_view = 4;
+    if (n && n < ui.line_view)
+        ui.line_view = n;
+    if (n && n > ui.line_view + 11)
+        ui.line_view = n - 11;
+    ui.line_view = clampi(ui.line_view, 1, (int)JT_LN_TOP - 11);
+}
+static void line_view_fit(void)          /* the whole line on the screen, as far as it goes */
+{
+    const jt_jam_t *j = jt_jam();
+    int i, lo = 99, hi = 0;
+    for (i = 0; i < (int)JT_LINE; i++) {
+        int n = j->line[i] & 0x1F;
+        if (n) {
+            lo = n < lo ? n : lo;
+            hi = n > hi ? n : hi;
+        }
+    }
+    if (hi)
+        ui.line_view = clampi(hi - lo < 11 ? lo - (11 - (hi - lo)) / 2 : lo, 1, (int)JT_LN_TOP - 11);
+    line_view_follow();
+}
+static void line_changed(void)           /* an edit: the synth plays the line (it is what is being written) */
+{
+    jt_jam_t *j = jt_jam();
+    if (j->sstyle != SY_USER) {
+        j->sstyle = SY_USER;
+        app_say("THE SYNTH PLAYS", "MY LINE");
+    }
+    jt_jam_changed(JX_STYLE);
+    mark_changed();
+    notify(JX_STYLE);
+    line_view_follow();
+    ui.d_field = ui.d_knobs = 1;
+}
+static void line_put(uint8_t v)          /* at the cursor, then on a step */
+{
+    jt_jam_t *j = jt_jam();
+    j->line[ui.line_cur & 15] = v;
+    line_changed();
+    ui.line_cur = wrapi(ui.line_cur + 1, jt_line_len(j));
+    line_view_follow();
+}
+static void line_key(uint32_t k)         /* a key: its note, as a step of the key's scale from the keyboard's lowest 1 */
+{
+    const jt_jam_t *j = jt_jam();
+    int note = 53 + (int)k + 12 * ui.octave, tonic = 53 + ((int)j->key - 5 + 12) % 12, semis = note - tonic;
+    int o = semis >= 0 ? semis / 12 : -((-semis + 11) / 12), pc = semis - 12 * o, m, row;
+    uint8_t vel = j->line[ui.line_cur & 15] & 0xC0u;
+    for (m = 6; m > 0 && semi_of_deg(m, j->mode) > pc; m--)
+        ;
+    row = clampi((int)JT_LN_ROOT + 7 * o + m, 1, (int)JT_LN_TOP);
+    line_put((uint8_t)(row | ((j->line[ui.line_cur & 15] & 0x1Fu) ? vel : 0u)));
+}
+static void line_new(void)               /* ARP on MY LINE: a new line to start from (undo brings the last back) */
+{
+    jt_jam_t j = *jt_jam();
+    static uint32_t salt;
+    uint8_t seed = j.seed;
+    j.seed = (uint8_t)((plat_ms() * 2654435761u + ++salt * 40503u) >> 13);
+    jt_line_seed(&j);
+    j.seed = seed;
+    j.sstyle = SY_USER;
+    jam_apply(&j, -1);
+    jam_dirty = 1;
+    app_say("A NEW LINE", "OCT- + OCT+: UNDO");
+    notify(JX_ALL);
+    line_view_fit();
+}
+
 static float param_norm(int id)          /* 0..1, for the dial */
 {
     jt_jam_t *j = jt_jam();
@@ -691,6 +797,10 @@ static float param_norm(int id)          /* 0..1, for the dial */
     case PR_CBEATS: return (float)(c->beats - 1) / 15.0f;
     case PR_CBASS: return (float)c->bass / (float)(JB_N - 1);
     case PR_GENRE: return (float)set.genre / (float)jt_count(JT_T_GENRE);
+    case PR_LNOTE: return (float)line_idx(j->line[ui.line_cur & 15]) / (float)(JT_LN_TOP + 1u);
+    case PR_LVEL: return (float)(j->line[ui.line_cur & 15] >> 6) / 3.0f;
+    case PR_LLEN: return (float)(jt_line_len(j) - 1) / 15.0f;
+    case PR_LMODE: return (float)line_mode(j) / 3.0f;
     }
     return 0;
 }
@@ -763,11 +873,13 @@ static void param_text(int id, char *t)
     case PR_CBEATS: int_text(c->beats, t); break;
     case PR_CBASS: text_cpy(t, BASS_NAME[c->bass % JB_N], 8); break;
     case PR_GENRE: text_cpy(t, genre_name(set.genre), 14); break;
+    case PR_LNOTE: line_note_text(j, j->line[ui.line_cur & 15], t); break;
+    case PR_LVEL: text_cpy(t, (j->line[ui.line_cur & 15] & 0x1Fu) ? LVEL_NAME[j->line[ui.line_cur & 15] >> 6] : "-", 8); break;
+    case PR_LLEN: int_text(jt_line_len(j), t); text_cat(t, " STEPS"); break;
+    case PR_LMODE: text_cpy(t, LMODE_NAME[line_mode(j)], 14); break;
     }
 }
 
-static int clampi(int v, int lo, int hi) { return v < lo ? lo : v > hi ? hi : v; }
-static int wrapi(int v, int n) { return ((v % n) + n) % n; }
 
 static void audition_cursor(void)
 {
@@ -789,7 +901,7 @@ static void param_turn(int id, int e, uint32_t knob)
         switch (id) {
         case PR_TEMPO: j->bpm10 = (uint16_t)clampi(j->bpm10 + d * 10, 400, 2400); break;
         case PR_KEY: j->key = (uint8_t)wrapi(j->key + e, 12); what = JX_PROG; break;
-        case PR_MODE: j->mode = (uint8_t)wrapi(j->mode + e, JM_N); what = JX_PROG; break;
+        case PR_MODE: jt_mode_set(j, wrapi(j->mode + e, JM_N)); what = JX_PROG; break;
         case PR_METER: j->meter = (uint8_t)wrapi(j->meter + e, JT_METER_N); what = JX_ALL; break;
         case PR_ENERGY: p->energy = (uint8_t)clampi(p->energy + e, 0, 4); break;
         case PR_KIT: j->kit = (uint8_t)wrapi(j->kit + e, (int)jt_count(JT_T_KIT)); break;
@@ -837,6 +949,26 @@ static void param_turn(int id, int e, uint32_t knob)
         case PR_CQUAL: c->qual = (uint8_t)wrapi(c->qual + e, JQ_N); what = JX_PROG; audition_cursor(); break;
         case PR_CBEATS: c->beats = (uint8_t)clampi(c->beats + e, 1, 16); what = JX_PROG; break;
         case PR_CBASS: c->bass = (uint8_t)wrapi(c->bass + e, JB_N); what = JX_PROG; audition_cursor(); break;
+        case PR_LNOTE: case PR_LVEL: case PR_LLEN: case PR_LMODE: {
+            uint8_t *v = &j->line[ui.line_cur & 15];
+            if (id == PR_LNOTE) {
+                int x = clampi(line_idx(*v) + d, 0, (int)JT_LN_TOP + 1);
+                *v = (uint8_t)(x >= 2 ? (uint32_t)(x - 1) | (*v & 0xC0u) : x == 1 ? JT_LN_HOLD : 0u);
+            } else if (id == PR_LVEL) {
+                if (*v & 0x1Fu)
+                    *v = (uint8_t)((*v & 0x3Fu) | (uint32_t)clampi((*v >> 6) + e, 0, 3) << 6);
+            } else if (id == PR_LLEN) {
+                int l = clampi(jt_line_len(j) + e, 1, (int)JT_LINE);
+                j->line_set = (uint8_t)((j->line_set & 0xF0u) | (l == (int)JT_LINE ? 0u : (uint32_t)l));
+                ui.line_cur = clampi(ui.line_cur, 0, l - 1);
+            } else {
+                int m = wrapi(line_mode(j) + e, 4);
+                j->line_set = (uint8_t)((j->line_set & 0x0Fu) | (m & 1 ? JT_LS_KEY : 0u) | (m & 2 ? JT_LS_SLIDE : 0u));
+            }
+            line_changed();
+            what = JX_STYLE;
+            break;
+        }
         }
     if (settings)
         settings_changed();
@@ -857,6 +989,13 @@ static void page_go(int page)
     ui.last_page[PAGES[page].group] = page;
     ui.save_mode = 0;
     ui.d_head = ui.d_field = ui.d_knobs = 1;
+    if (page == PG_LINE && jt_line_empty(jt_jam())) {   /* nothing written yet: the jam's hook to start from */
+        jt_line_seed(jt_jam());
+        mark_changed();
+        notify(JX_STYLE);
+    }
+    if (page == PG_LINE)
+        line_view_fit();
     if (ann_on()) {
         char t[64] = "";
         text_cat(t, PAGES[page].title);
@@ -867,8 +1006,8 @@ static void page_go(int page)
 static void group_button(int g)
 {
     static const uint8_t ORDER[][6] = {{PG_HOME}, {PG_EDIT}, {PG_SOUNDS, PG_MIX, PG_TONE, PG_SENDS, PG_OCT},
-                                       {PG_STYLES, PG_FEEL, PG_PART, PG_FLOW}, {PG_FX}, {PG_SONG, PG_MIDI, PG_SYSTEM, PG_KEYS, PG_KIT}};
-    static const uint8_t NPG[6] = {1, 1, 5, 4, 1, 5};
+                                       {PG_STYLES, PG_LINE, PG_FEEL, PG_PART, PG_FLOW}, {PG_FX}, {PG_SONG, PG_MIDI, PG_SYSTEM, PG_KEYS, PG_KIT}};
+    static const uint8_t NPG[6] = {1, 1, 5, 5, 1, 5};
     int i;
     if (PAGES[ui.page].group != g) {     /* a new group: the page last seen in it */
         int p = ui.last_page[g];
@@ -948,8 +1087,9 @@ static void transport(uint32_t op, uint32_t a, uint32_t b)
     case 9: generate_in((int)(a % jt_count(JT_T_GENRE)), b <= 3u ? (int)b : 0); break;
     case 10: {
         jt_jam_t j;
-        if (jam_get((int)a, &j) > 0)
-            jam_set_current(&j, (int)a, 1);
+        int sl = slot_from_wire((int)a);
+        if (jam_get(sl, &j) > 0)
+            jam_set_current(&j, sl, 1);
         break;
     }
     case 11:
@@ -1317,7 +1457,9 @@ static void input(void)
         }
         if ((rel & (1u << B_SEQ)) && !ui.seq_used)
             jt_part_go(-1);
-        if ((rel & (1u << B_ARP)) && !ui.arp_used) {
+        if ((rel & (1u << B_ARP)) && !ui.arp_used && ui.page == PG_LINE)
+            line_new();
+        else if ((rel & (1u << B_ARP)) && !ui.arp_used) {
             int g = PAGES[ui.page].group;
             generate(g == GR_GROOVE ? JG_GROOVE : g == GR_SOUND ? JG_SOUND : g == GR_EDIT ? JG_PROG : JG_ALL);
         }
@@ -1370,6 +1512,8 @@ static void input(void)
             ui.save_slot = wrapi(ui.save_slot - 1, NUSER), ui.d_field = 1;
         else if (ui.page == PG_EDIT)
             edit_delete();
+        else if (ui.page == PG_LINE)
+            line_put(0);
         else {
             ui.octave = clampi(ui.octave - 1, -2, 2);
             set.octave = (uint8_t)(ui.octave + 2);
@@ -1380,6 +1524,8 @@ static void input(void)
             ui.save_slot = wrapi(ui.save_slot + 1, NUSER), ui.d_field = 1;
         else if (ui.page == PG_EDIT)
             edit_insert();
+        else if (ui.page == PG_LINE)
+            line_put(ui.line_cur ? JT_LN_HOLD : 0);
         else {
             ui.octave = clampi(ui.octave + 1, -2, 2);
             set.octave = (uint8_t)(ui.octave + 2);
@@ -1408,6 +1554,8 @@ static void input(void)
             } else if (ui.page == PG_EDIT) {
                 edit_key(k);
             } else {
+                if (ui.page == PG_LINE)
+                    line_key(k);
                 int note = clampi(53 + (int)k + 12 * ui.octave, 0, 127);
                 ui.live_note[k] = (uint8_t)note;
                 ui.live_held[k] = 1;
@@ -1440,6 +1588,10 @@ static void input(void)
         } else if (ui.page == PG_EDIT) {
             ui.cursor = wrapi(ui.cursor + (int)e, edit_part()->n);
             audition_cursor();
+            ui.d_field = ui.d_knobs = 1;
+        } else if (ui.page == PG_LINE) {
+            ui.line_cur = wrapi(ui.line_cur + (int)e, jt_line_len(jt_jam()));
+            line_view_follow();
             ui.d_field = ui.d_knobs = 1;
         } else
             param_turn(PR_TEMPO, (int)e, 4);
@@ -1548,9 +1700,7 @@ static void slot_text(char *t)
         t[3] = 0;
     } else if (cur_slot >= 0x80) {
         t[0] = 'F';
-        t[1] = (char)('0' + (cur_slot - 0x80 + 1) / 10);
-        t[2] = (char)('0' + (cur_slot - 0x80 + 1) % 10);
-        t[3] = 0;
+        int_text(cur_slot - 0x80 + 1, t + 1);
     }
 }
 
@@ -1743,6 +1893,70 @@ static void draw_edit_field(void)
     band_end(FIELD_Y + 72);
 }
 
+/* MY LINE: a piano roll, 16 steps across, 12 rows of the scale up (the 1s ruled), the cursor's step lit, the playhead */
+static void draw_line_field(void)
+{
+    const jt_jam_t *j = jt_jam();
+    const jt_status_t *st = jt_status();
+    int len = jt_line_len(j), i, r, y0, play = st->playing && !st->counting && j->sstyle == SY_USER;
+    int ph = play ? st->step % len : -1;
+    char t[24];
+    for (y0 = FIELD_Y; y0 < FIELD_Y + 144; y0 += 72) {
+        band(y0, 72);
+        cv_text(4, FIELD_Y + 1 - y0, &FONT_XS, "MY LINE", j->sstyle == SY_USER ? C_HI : C_GRAY);
+        t[0] = 0;
+        text_cat(t, "STEP ");
+        int_text(ui.line_cur + 1, t + 5);
+        text_cat(t, "  ");
+        {
+            char nt[12];
+            line_note_text(j, j->line[ui.line_cur & 15], nt);
+            text_cat(t, nt);
+        }
+        text_r(236, FIELD_Y + 3 - y0, &FONT_T, t, C_WHITE);
+        for (r = 0; r < 12; r++) {       /* the rows, top down */
+            int row = ui.line_view + 11 - r, d = row - (int)JT_LN_ROOT, m = ((d % 7) + 7) % 7;
+            int32_t y = FIELD_Y + 20 + r * 10 - y0;
+            if (m == 0) {
+                char b[4];
+                b[0] = '1';
+                b[1] = d > 0 ? '+' : d < 0 ? '-' : 0;
+                b[2] = d > 7 ? '+' : 0;
+                b[3] = 0;
+                cv_text(2, y - 2, &FONT_T, b, C_AMB);
+                cv_rect(22, y + 9, 208, 1, C_LINE);
+            }
+        }
+        for (i = 0; i < 16; i++) {       /* the steps */
+            int32_t x = 22 + i * 13, top = FIELD_Y + 20 - y0;
+            uint8_t v = j->line[i];
+            if (i >= len) {
+                cv_rect(x + 1, top, 11, 120, RGB(14, 14, 18));
+                continue;
+            }
+            if (i == ui.line_cur)
+                cv_rect(x, top, 13, 120, RGB(36, 36, 48));
+            if (i == ph)
+                cv_rect(x, top - 4, 13, 3, C_WHITE);
+            else if (i % 4 == 0)
+                cv_rect(x, top - 4, 13, 1, C_DIM);
+            if (v & 0x1Fu) {
+                int row = v & 0x1F, l = 1;
+                static const uint16_t VC[4] = {RGB(180, 130, 255), RGB(110, 85, 160), RGB(215, 180, 255), RGB(255, 255, 255)};
+                while (i + l < len && j->line[i + l] == JT_LN_HOLD)
+                    l++;
+                if (row >= ui.line_view && row <= ui.line_view + 11) {
+                    int32_t y = top + (ui.line_view + 11 - row) * 10;
+                    cv_rect(x + 1, y + 1, l * 13 - 2, 8, i <= ph && ph < i + l ? C_WHITE : VC[v >> 6]);
+                } else {                 /* off the screen: an arrow's worth at the edge */
+                    cv_rect(x + 3, row > ui.line_view + 11 ? top : top + 117, 7, 3, VC[v >> 6]);
+                }
+            }
+        }
+        band_end(y0);
+    }
+}
+
 static void draw_param_field(void)
 {
     const page_t *pg = &PAGES[ui.page];
@@ -1917,6 +2131,8 @@ static void draw_field(void)
         draw_home_field();
     else if (ui.page == PG_EDIT)
         draw_edit_field();
+    else if (ui.page == PG_LINE)
+        draw_line_field();
     else
         draw_param_field();
 }
@@ -2037,6 +2253,12 @@ void app_frame(void)
     }
     if (st->queued && ui.page == PG_HOME && (now / 150u) != last_msg)
         ui.d_field = 1;
+    {
+        static uint8_t last_step;
+        if (ui.page == PG_LINE && st->playing && st->step != last_step)
+            ui.d_field = 1;              /* (MY LINE's playhead, a step at a time) */
+        last_step = st->step;
+    }
     {
         static uint32_t tick100;
         if ((ui.browse_on || ui.keys_on) && now / 100u != tick100)
@@ -2243,6 +2465,10 @@ int app_expect(const char *what, int *got)
         *got = n;
     } else if (!strcmp(what, "clockout")) *got = set.eng.clock_out;
     else if (!strcmp(what, "save_mode")) *got = ui.save_mode;
+    else if (!strcmp(what, "sstyle")) *got = j->sstyle;
+    else if (!strcmp(what, "linecur")) *got = ui.line_cur;
+    else if (!strcmp(what, "linelen")) *got = jt_line_len(j);
+    else if (!strncmp(what, "line", 4) && what[4] >= '0' && what[4] <= '9') *got = j->line[atoi(what + 4) & 15];
     else
         return 0;
     return 1;

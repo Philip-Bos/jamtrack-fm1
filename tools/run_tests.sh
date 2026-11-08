@@ -18,7 +18,7 @@ build/dsp_test build/test | tail -2
 echo "== the companion's theory against the firmware's"
 cc -DPLAT_HOST -Iapp/dsp -Iapp -Ibase/include app/dsp/engine.c tools/dump_tables.c -lm -o build/dump_tables
 build/dump_tables > build/tables_full.json
-node -e 'const fs=require("fs");const t=JSON.parse(fs.readFileSync("build/tables_full.json"));fs.writeFileSync("app/tests/chords.json",JSON.stringify(t.chordTests));delete t.chordTests;fs.writeFileSync("companion/lib/tables.json",JSON.stringify(t,null,1));'
+node -e 'const fs=require("fs");const t=JSON.parse(fs.readFileSync("build/tables_full.json"));fs.writeFileSync("app/tests/chords.json",JSON.stringify(t.chordTests));fs.writeFileSync("app/tests/modes.json",JSON.stringify(t.modeTests));delete t.chordTests;delete t.modeTests;fs.writeFileSync("companion/lib/tables.json",JSON.stringify(t,null,1));'
 node app/tests/theory_test.mjs
 for f in companion/*.js companion/lib/*.js companion/flasher/*.js; do node --check "$f"; done
 echo "== the app in the host simulator"

@@ -575,6 +575,31 @@ static int syn_ladder(const chord_t *c, int centre, int k)   /* the chord's tone
     return base + 12 * o + ((t[i] - t[0] + 12) % 12);
 }
 
+/* MY LINE: the jam's own steps (jt_dsp.h), through the chord's degree of the scale (or the key's) */
+static void play_line(int s, const chord_t *c, int centre, float delay, float sps)
+{
+    int len = jt_line_len(&jam), i = s % len, n, l, deg = 0, acc = 0, note, tonic;
+    uint8_t v = jam.line[i];
+    static const uint8_t VEL[4] = {88, 64, 104, 120};
+    n = v & 0x1F;
+    if (!n || n > (int)JT_LN_TOP)
+        return;
+    for (l = 1; i + l < len && jam.line[i + l] == JT_LN_HOLD; l++)
+        ;
+    if (!(jam.line_set & JT_LS_KEY)) {   /* the chord's degree, the high ones a step of the scale below the key */
+        const jt_chord_t *jc = part_chord(chord_for_hit(sq.pstep, &note));
+        deg = jc->deg & 7;
+        acc = ((jc->deg >> 4) & 3) == 1 ? -1 : ((jc->deg >> 4) & 3) == 2 ? 1 : 0;
+        if (deg >= 4)
+            deg -= 7;
+    }
+    (void)c;
+    tonic = nearest((int)jam.key, centre - 7);
+    note = tonic + scale_tone(deg + n - (int)JT_LN_ROOT) + acc;
+    note_event(JP_SYNTH, note, VEL[v >> 6], delay, (float)l * sps * (jam.line_set & JT_LS_SLIDE ? 1.04f : 0.85f), 0,
+               0);
+}
+
 static void play_synth(int s, float delay, int sib, int blen)
 {
     int st_ = jam.sstyle % SY_N, pushed, ci = chord_for_hit(sq.pstep, &pushed), centre, k, to;
@@ -689,6 +714,58 @@ static void play_synth(int s, float delay, int sib, int blen)
             for (k = nv > 3 ? nv - 3 : 0; k < nv; k++)
                 note_event(JP_SYNTH, v[k], 88, delay, sps * 1.2f, (k - 1) * 30, 0);
         }
+        break;
+    case SY_OCTAVES:                     /* the root in eighths, low and high */
+        if (sib % 2)
+            break;
+        note_event(JP_SYNTH, nearest(c.root, centre - 12) + ((s / 2) & 1 ? 12 : 0), (s / 2) & 1 ? 72 : 88, delay,
+                   sps * 1.3f, (s / 2) & 1 ? 20 : -20, 0);
+        break;
+    case SY_SEQ: {                       /* a sixteenth riff on the scale from the seed, two bars, around the chord */
+        int i16 = s % 16, bar2 = sq.part_bars & 1;
+        uint32_t r = ((uint32_t)jam.seed * 2654435761u) ^ ((uint32_t)i16 * 0x9E3779B9u) ^ (bar2 && i16 >= 8 ? 0x51ED27u : 0u);
+        r ^= r >> 15;
+        r *= 0x2c1b3c6du;
+        r ^= r >> 12;
+        if (i16 % 4 != 0 && (r & 7) < 3)
+            break;
+        {
+            static const int8_t STEPS[8] = {0, 2, 4, 7, 4, 2, 9, 5};
+            int d = i16 % 4 == 0 ? (i16 == 0 ? 0 : (int)STEPS[(r >> 4) & 3]) : (int)STEPS[(r >> 4) & 7];
+            int base = nearest(c.root, centre - 7), deg, m, pc = ((c.root - (int)jam.key) % 12 + 12) % 12;
+            for (m = 0; m < 7 && SCALE[jam.mode % JM_N][m] != pc; m++)
+                ;
+            deg = m < 7 ? m : 0;
+            note_event(JP_SYNTH, base + scale_tone(deg + d) - scale_tone(deg), i16 % 4 == 0 ? 96 : 70 + (int)((r >> 8) & 15),
+                       delay, sps * 0.8f, ((int)((r >> 12) & 63)) - 32, 0);
+        }
+        break;
+    }
+    case SY_CHIMES:                      /* two high notes of the chord together, now and then off the beat */
+        if (sib % 2 || sib == 0 || (h & 0xFF) > 110)
+            break;
+        k = (int)((h >> 8) % 3);
+        note_event(JP_SYNTH, syn_ladder(&c, centre + 7, k), 64, delay, sps * 4.0f, -35, 0);
+        note_event(JP_SYNTH, syn_ladder(&c, centre + 7, k + 2), 58, delay + sps * 0.05f, sps * 4.0f, 35, 0);
+        break;
+    case SY_GATED:                       /* the chord chopped in sixteenths */
+        if (GATE_RHY[(uint32_t)jam.seed % NGATE_RHY][s % 16] == '#') {
+            int v[6], nv = voice_chord(&c, VO_CLOSE, 0, 0, centre, v);
+            for (k = nv > 3 ? nv - 3 : 0; k < nv; k++)
+                note_event(JP_SYNTH, v[k], sib == 0 ? 86 : 70, delay, sps * 0.7f, (k - 1) * 30, 0);
+        }
+        break;
+    case SY_ARPUP: {                     /* up the chord in sixteenths, three octaves, back to the bottom */
+        int n3 = 3 * (c.n > 4 ? 4 : c.n);
+        if (ci != sq.syn_chord)
+            sq.arp_i = 0;
+        k = sq.arp_i++ % n3;
+        note_event(JP_SYNTH, syn_ladder(&c, centre - 12, k), sib == 0 ? 88 : 66 + k * 2, delay, sps * 0.9f,
+                   (k % 3 - 1) * 30, 0);
+        break;
+    }
+    case SY_USER:
+        play_line(s, &c, centre, delay, sps);
         break;
     }
     sq.syn_chord = ci;
@@ -868,6 +945,7 @@ static void step(void)
             play_synth(sq.step, d, sib, blen);
     }
     st.chord = (uint8_t)chord_at(sq.pstep);
+    st.step = (uint8_t)sq.step;
     {                                    /* where in its chord: the screen's ring */
         int c = st.chord, len = sq.cstart[c + 1] - sq.cstart[c];
         st.chord_step = (uint8_t)(sq.pstep - sq.cstart[c] < 255 ? sq.pstep - sq.cstart[c] : 255);

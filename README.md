@@ -25,18 +25,21 @@
 ## What it is
 
 JAMTRACK turns the FM-1 into a band you can jam with. Write a progression as numbers (`1maj7 6m7 4maj7 5sus4`), pick
-a key and a groove, press PLAY. Change the key and the song moves with it. Switch between a verse (part A) and a
+a key and a groove, press PLAY. Change the key and the song moves with it; change the scale (major to minor) and the chords move with it too. Switch between a verse (part A) and a
 chorus (part B) with a fill, end on a last hit, start and stop from a loop pedal.
 
 - **Indie first.** Dreamy half-time, disco four-on-the-floor, bossa bedroom pop, motorik, jangly strums, octave bass,
   Rhodes and Wurli, clean chorused guitars, Juno-style pads. Then rock, folk, soul, city pop, blues, hip hop, reggae,
   jazz, country, synth pop and ballads.
-- **Four players.** 20 grooves, 16 bass lines (with approach notes into the next chord), 16 comping styles (strums,
-  fingerpicking, stabs, arpeggios) and 9 synth lines (hooks, counter-melodies, arps, bells), each its own choice.
-- **26 sounds and 10 kits**, all made from scratch: acoustic kits (VINTAGE, STUDIO, ROOM, BRUSHES, LO-FI, ROCK,
+- **Four players.** 28 grooves, 24 bass lines (with approach notes into the next chord), 24 comping styles (strums,
+  fingerpicking, Travis picking, skanks, stabs, arpeggios) and 15 synth lines (hooks, counter-melodies, arps, sequences,
+  gated chords, bells), each its own choice.
+- **MY LINE: write your own synth line** on a 16-step piano roll, on the FM-1 (the keys write notes) or in the companion.
+  It moves with every chord through the key's scale, so one line plays over the whole progression.
+- **37 sounds and 10 kits**, all made from scratch: acoustic kits (VINTAGE, STUDIO, ROOM, BRUSHES, LO-FI, ROCK,
   CAJON), drum machines (LM-80, RHYTHM BOX, 808), and a **USER kit** from your own samples.
 - **Every time signature it needs:** 4/4, 3/4, 6/8, 12/8, 2/4, 5/4, 7/8. Every groove plays in all of them.
-- **38 factory jams** in one list filed by genre, and **GENERATE**: a new jam at a press, or only new chords,
+- **160 factory jams**, ten in each of the 16 genres, in one list filed by genre, and **GENERATE**: a new jam at a press, or only new chords,
   grooves or sounds.
 - **A ring around the chord playing** fills as it plays, so you always know when the change comes; the keys light
   up the chord's notes and the scale, a map to solo over.
@@ -66,7 +69,8 @@ chorus (part B) with a fill, end on a last hit, start and stop from a loop pedal
 | **SEL** | which part EDIT works on; **held + a key**: the jam's key |
 | **SAVE** | SAVE again to keep the jam (SELECT picks the place) |
 | **HOME · EDIT · ENV · LFO · FX · GLO** | pages; again for the group's next page; hold HOME: what the page does |
-| **K1–K4** | the page's four settings. SELECT: the tempo (on EDIT: the chord) |
+| **K1–K4** | the page's four settings. SELECT: the tempo (on EDIT: the chord; on MY LINE: the step) |
+| **MY LINE** (LFO, LFO) | the synth's own 16 steps: the keys write a note at the step, OCT- a rest, OCT+ holds the note before; K1 the note, K2 how hard, K3 the length, K4 follows the chords or the key; ARP a new line to start from |
 | **keys** | play along on their own sound (SOLO LEAD by default; ALGORITHM changes it); their lights show the chord and the scale |
 | **FX held + keys** | white 1–4 mute drums / bass / chords / synth; black: fill, part, from the top, break, drums out |
 

@@ -71,7 +71,7 @@ function draw() {
     const j = J.fromHex(h);
     return el("li", {}, el("span", { class: "num" }, `F${String(i + 1).padStart(2, "0")}`),
       el("span", { class: "name" }, j.name, el("span", { class: "meta" }, `${app.tables.genres[j.genre]} · ${desc(j)}`)),
-      el("span", { class: "acts" }, el("button", { type: "button", onclick: () => loadOnFm1(0x80 + i, j) }, app.connected ? "Load" : "Open")));
+      el("span", { class: "acts" }, el("button", { type: "button", onclick: () => loadOnFm1((app.jt?.info?.proto >= 2 ? 0x40 : 0x80) + i, j) }, app.connected ? "Load" : "Open")));
   }));
 }
 

@@ -132,6 +132,46 @@ static const groove_t GROOVES[] = {
      R9("x.......x.......", "....x...x...x...", 0, 0, 0, "x.x.x.x.x.x.x.x.", 0, 0, 0),
      R9("x...........", "....o...o...", 0, "x...x...x...", 0, 0, 0, 0, "....g...g..."),
      R9("x.....x.....", "..o.o...o.o.", 0, "x.x.x.x.x.x.", 0, 0, 0, 0, 0)},
+    {"SHAKER", 0, 0, FILL_LIGHT, 0,
+     R9("x.......x.x.....", "....x.......x...", 0, 0, 0, 0, 0, 0, "xgogxgogxgogxgog"),
+     R9("x.......x.x...?.", "....x.......x..,", 0, "..o...o...o...o.", 0, 0, 0, 0, "xgogxgogxgogxgox"),
+     R9("x.......?...", "....x...x...", 0, 0, 0, 0, 0, 0, "xgogxgogxgog"),
+     R9("x.....?.....", "......x.....", 0, 0, 0, 0, 0, 0, "xgogxgxgogxg")},
+    {"HALF SHUFFLE", 0, 66, FILL_SNARE, 1,
+     R9("x.....x...x...x.", "..g..g..x..g..g.", 0, "x.xxx.xxx.xxx.xx", 0, 0, 0, 0, 0),
+     R9("x.....x...x.x...", "..g..g..x..g.gg.", 0, "x.xxx.xxx.xxx.x.", "..............x.", 0, 0, 0, 0),
+     R9("x.....x.....", "..g..g..x...", 0, "x.xxx.xxx.xx", 0, 0, 0, 0, 0),
+     R9("x.....x.....", "..g..gx..g..", 0, "x.xxx.xxx.xx", 0, 0, 0, 0, 0)},
+    {"BREAKBEAT", 0, 10, FILL_SNARE, 0,
+     R9("x.x.......x.....", "....x..g.g..x..g", 0, "x.x.x.x.x.x.x.x.", 0, 0, 0, 0, 0),
+     R9("x.x.......xx....", "....x..g.g..x.g.", 0, "x.x.x.x.x.x.x...", "............o...", 0, 0, 0, 0),
+     R9("x.x.......x.", "....x..g.g..", 0, "x.x.x.x.x.x.", 0, 0, 0, 0, 0),
+     R9("x.x...x.....", "......x..g..", 0, "x.x.x.x.x.x.", 0, 0, 0, 0, 0)},
+    {"TRAP", 0, 0, FILL_DROP, 0,
+     R9("x......x..x.....", 0, "........x.......", "xgxgxgxgxgxgxgxg", 0, 0, 0, 0, 0),
+     R9("x......x..x...x.", 0, "........x.......", "xgxgxgxgxgxxxgxx", 0, 0, 0, 0, 0),
+     R9("x.....x.....", 0, "........x...", "xgxgxgxgxgxg", 0, 0, 0, 0, 0),
+     R9("x.....?.....", 0, "......x.....", "xgxgxgxxxgxg", 0, 0, 0, 0, 0)},
+    {"NEW WAVE", 0, 0, FILL_TOMS, 1,
+     R9("x.......x.x.....", "....x.......x...", 0, "XgxgXgxgXgxgXgxg", 0, 0, 0, 0, 0),
+     R9("x.......x.x.x...", "....x.......x.x.", 0, "XgxgXgxgXgxgXgx.", "..............x.", 0, 0, 0, 0),
+     R9("x.......x...", "....x.......", 0, "XgxgXgxgXgxg", 0, 0, 0, 0, 0),
+     R9("x.....x.....", "......x.....", 0, "XgxgxgXgxgxg", 0, 0, 0, 0, 0)},
+    {"AFROBEAT", 0, 8, FILL_SNARE, 0,
+     R9("x.....x...x.....", "....x..g..x.,...", 0, "x.x.x.x.x.x.x.x.", 0, 0, 0, 0, "x.x.xx.x.x.xx.x."),
+     R9("x.....x.x.x.....", "....x..g..x.,..g", 0, "x.x.x.x.x.x.x...", "......x.......x.", 0, 0, 0, "x.x.xx.x.x.xx.x."),
+     R9("x.....x.....", "....x..g..x.", 0, "x.x.x.x.x.x.", 0, 0, 0, 0, "x.x.xx.x.x.x"),
+     R9("x.....x.....", "...g..x..g..", 0, "x.x.x.x.x.x.", 0, 0, 0, 0, "x.xx.xx.xx.x")},
+    {"MOTOWN", 0, 0, FILL_SNARE, 0,
+     R9("x.....x.x.....x.", "o...X...o...X...", 0, "x.x.x.x.x.x.x.x.", 0, 0, 0, 0, "....x.......x..."),
+     R9("x.....x.x.x...x.", "o...X...o...X.g.", 0, "x.x.x.x.x.x.x.x.", 0, 0, 0, 0, "..x.x...x.x.x..."),
+     R9("x.......x...", "o...X...X...", 0, "x.x.x.x.x.x.", 0, 0, 0, 0, "....x...x..."),
+     R9("x.....x.....", "o.....X.....", 0, "x.x.x.x.x.x.", 0, 0, 0, 0, "......x.....")},
+    {"ROCKERS", 0, 20, FILL_LIGHT, 0,
+     R9("x...x...x...x...", 0, "........x.......", "o.x.o.x.o.x.o.x.", 0, 0, 0, 0, 0),
+     R9("x...x...x...x...", 0, "....x.......x...", "o.x.o.xxo.x.o.xx", 0, 0, 0, 0, "..o...o...o...o."),
+     R9("x...x...x...", 0, "........x...", "o.x.o.x.o.x."  , 0, 0, 0, 0, 0),
+     R9("x.....x.....", 0, "......x.....", "o.x.o.x.o.x.", 0, 0, 0, 0, 0)},
 };
 #define NGROOVES (sizeof(GROOVES) / sizeof(GROOVES[0]))
 
@@ -160,6 +200,14 @@ static const bstyle_t BSTYLES[] = {
     {"16THS", 45, 0, 0, "RRRRRRRRRRRRRRRR", "RRRRRRRRRRRR", "RRRRRRRRRRRR"},
     {"PEDAL 1", 80, 0, 0, "L.L.L.L.L.L.L.L.", "L.L.L.L.L.L.", "L.L.L.L.L.L."},
     {"DISCO RUN", 55, 1, 0, "R.8.R.8.5.8.A.P.", "R.8.R.8.A.P.", "R.8.5.8.A.P."},
+    {"SYNCOPATED", 70, 1, 0, "R..R..R...5..8A.", "R..R..R..5A.", "R..R..5..8A."},
+    {"ROCKERS", 70, 0, 0, "R.R.5.R.R.R.5.8.", "R.R.5.R.5.8.", "R.R.5.R.R.5."},
+    {"808 SLIDE", 95, 0, 1, "R-------..R-8-R-", "R-------8-R-", "R-------8-R-"},
+    {"ARPEGGIO", 60, 1, 0, "R.3.5.8.5.3.R.A.", "R.3.5.8.5.A.", "R.3.5.8.5.A."},
+    {"BOSSA", 85, 1, 0, "R-----5-5-----A-", "R-----5-5-A-", "R-----5---A-"},
+    {"OFFBEAT", 50, 0, 0, "..R...R...R...R.", "..R...R...R.", "..R...R...R."},
+    {"GALLOP", 55, 0, 0, "R.RRR.RRR.RRR.RR", "R.RRR.RRR.RR", "R.RRR.RRR.RR"},
+    {"LOCKED", 50, 1, 0, "R..R..R.d.R..8A.", "R..R..R.dA..", "R..R.dR..8A."},
 };
 #define NBSTYLES (sizeof(BSTYLES) / sizeof(BSTYLES[0]))
 
@@ -187,19 +235,31 @@ static const cstyle_t CSTYLES[] = {
     {"BOOM-CHICK", 60, 0, "b...x...b...x...", "b...x...x...", "b.....x.x..."},
     {"CHARLESTON", 50, 0, "x.....x.........", "x.....x.....", "x.....x....."},
     {"PIANO POP", 85, 0, "x-------..x-x---", "x-------x-x-", "x-----..x-x-"},
+    {"SKANK", 30, 0, "..ss..s...ss..s.", "..ss..s...s.", "..ss..s.ss.."},
+    {"GALLOP", 60, 0, "x.xxx.xxx.xxx.xx", "x.xxx.xxx.xx", "x.xxx.xxx.xx"},
+    {"16TH STRUM", 90, 0, "X.uux.u.x.uux.u.", "X.uux.u.x.u.", "X.u.x.X.u.x."},
+    {"TRAVIS", 100, 0, "1.4.2.5.1.4.2.5.", "1.4.2.5.1.4.", "1.4.5.2.4.5."},
+    {"ARP DOWN", 100, 0, "5.4.3.2.1.2.3.4.", "5.4.3.2.1.2.", "5.4.3.2.3.4."},
+    {"AFRO", 35, 0, ".s.ss.s..s.ss.s.", ".s.ss.s..s.s", ".s.ss..s.ss."},
+    {"RIPPLE", 100, 0, "1234543212345432", "123454321234", "123454321234"},
+    {"BLOCKS", 95, 0, "x---x---x---x---", "x---x---x---", "x-----x-----"},
 };
 #define NCSTYLES (sizeof(CSTYLES) / sizeof(CSTYLES[0]))
 
 /* ---------------------------------------------------------------- synth: the line above it all (seq.h makes it) */
 #include "jt_ids.h"
 static const char *const SSTYLE_NAME[SY_N] = {"OFF", "PAD", "ARP 8THS", "ARP 16THS", "HOOK", "MELODY", "COUNTER",
-                                              "PULSE", "BELLS", "STABS"};
+                                              "PULSE", "BELLS", "STABS", "OCTAVES", "SEQUENCE", "CHIMES",
+                                              "GATED", "ARP UP", "MY LINE"};
 /* the hooks' rhythms: one bar of S (16 steps); 'x' a note, '-' hold, '.' rest; the pitch comes from the contour */
 static const char *const HOOK_RHY[] = {
     "x.x.x---..x.x---", "x--.x-x-x---....", "..x-x-x-x---x-..", "x-x-..x-x-x-....",
     "x---x.x.x-------", "..x.x.x.x-..x-..", "x.xx-.x.x---....", "x-----x-x-x-x---",
 };
 #define NHOOK_RHY (sizeof(HOOK_RHY) / sizeof(HOOK_RHY[0]))
+/* GATED: the chord chopped in sixteenths, '#' on */
+static const char *const GATE_RHY[] = {"#.##.##.#.##.##.", "##.#.##.##.#.##.", "#.#.##.#.#.###.#", "###.#.##.##.#.#."};
+#define NGATE_RHY (sizeof(GATE_RHY) / sizeof(GATE_RHY[0]))
 
 /* ---------------------------------------------------------------- fills: one beat of steps (4), the toms' pitches
  * h m l; the fill is these beats, last beats of the bar */

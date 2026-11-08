@@ -444,3 +444,49 @@ int jt_parse_prog(const char *s, jt_part_t *p, int beats_default)
     p->n = (uint8_t)n;
     return 0;
 }
+
+/* a change of scale: each chord the old scale gave (its quality one of that degree's own, maybe with a 6th, a 9th...)
+ * becomes the new scale's chord on the same degree, with the same colour; borrowed and altered chords stay as written
+ * (AUTO chords follow by themselves) */
+static void diat(int mode, int i, int *fam, int *sev)
+{
+    const uint8_t *s = SCALE[mode % JM_N];
+    int t = (s[(i + 2) % 7] - s[i] + 12) % 12, f = (s[(i + 4) % 7] - s[i] + 12) % 12;
+    *sev = (s[(i + 6) % 7] - s[i] + 12) % 12;
+    *fam = t == 4 ? (f == 8 ? 4 : 1) : f == 6 ? 3 : 2;
+}
+void jt_mode_set(jt_jam_t *j, int mode)
+{
+    /* each quality: its family (1 major, 2 minor, 3 diminished, 4 augmented, 0 neither), its 7th (11, 10, 9; 0 none),
+     * its colour (0 triad, 1 7th, 2 9th, 3 6th, 4 add9, 5 11th, 6 13th, 7 6/9) */
+    static const uint8_t FAM[JQ_N] = {0, 1, 2, 3, 4, 0, 0, 1, 2, 1, 3, 1, 1, 2, 1, 1, 2, 0, 2, 3, 2, 2, 1, 1, 0};
+    static const uint8_t SEV[JQ_N] = {0, 0, 0, 0, 0, 0, 0, 11, 10, 10, 10, 0, 11, 10, 10, 0, 0, 0, 10, 9, 11, 0, 10, 0, 0};
+    static const uint8_t EXT[JQ_N] = {0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 4, 2, 2, 2, 3, 3, 0, 5, 1, 1, 4, 6, 7, 0};
+    static const uint8_t TO[6][8] = {
+        {JQ_MAJ, JQ_MAJ7, JQ_MAJ9, JQ_SIX, JQ_ADD9, JQ_MAJ9, JQ_MAJ9, JQ_69},     /* major, major 7th */
+        {JQ_MAJ, JQ_DOM7, JQ_DOM9, JQ_SIX, JQ_ADD9, JQ_DOM9, JQ_DOM13, JQ_69},    /* major, minor 7th */
+        {JQ_MIN, JQ_MIN7, JQ_MIN9, JQ_MIN6, JQ_MADD9, JQ_MIN11, JQ_MIN9, JQ_MIN6},
+        {JQ_MIN, JQ_MMAJ7, JQ_MIN9, JQ_MIN6, JQ_MADD9, JQ_MIN11, JQ_MIN9, JQ_MIN6},
+        {JQ_DIM, JQ_M7B5, JQ_M7B5, JQ_M7B5, JQ_DIM, JQ_M7B5, JQ_M7B5, JQ_M7B5},
+        {JQ_DIM, JQ_DIM7, JQ_DIM7, JQ_DIM7, JQ_DIM, JQ_DIM7, JQ_DIM7, JQ_DIM7}};
+    int from = j->mode % JM_N, k, c;
+    mode = ((mode % JM_N) + JM_N) % JM_N;
+    for (k = 0; k < 2 && from != mode; k++)
+        for (c = 0; c < (int)JT_NCHORD; c++) {
+            jt_chord_t *ch = &j->part[k].c[c];
+            int q = ch->qual < JQ_N ? ch->qual : 0, i = deg_index(ch->deg), f0, s0, f1, s1, row;
+            if (deg_acc(ch->deg) || !FAM[q])
+                continue;
+            diat(from, i, &f0, &s0);
+            if (FAM[q] != f0 || (SEV[q] && SEV[q] != s0))
+                continue;                /* not the old scale's own: borrowed, a blues 7th... it stays */
+            diat(mode, i, &f1, &s1);
+            if (f1 == 4) {
+                ch->qual = JQ_AUG;
+                continue;
+            }
+            row = f1 == 1 ? (s1 == 11 ? 0 : 1) : f1 == 2 ? (s1 == 11 ? 3 : 2) : (s1 == 9 ? 5 : 4);
+            ch->qual = TO[row][EXT[q]];
+        }
+    j->mode = (uint8_t)mode;
+}

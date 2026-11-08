@@ -9,7 +9,7 @@
  *   70 HELLO        -> "JTM1", protocol, firmware version (16), user slots, factory jams, kit slots, kit sectors, free
  *                      kit sectors, kit gen u32, jam bytes, current slot (0xFF none), playing
  *   71 TABLE        what (JT_T_*; 0x80 the factory jams, 0x81 the drums), first -> count, first, names (NUL ended)
- *   72 JAM GET      slot (0xFF the jam playing, 0..31 user, 0x80+ factory) -> used, slot, the jam (JT_JAM_BYTES)
+ *   72 JAM GET      slot (0xFF the jam playing, 0..31 user, 0x40+ factory) -> used, slot, the jam (JT_JAM_BYTES)
  *   73 JAM PUT      slot (0xFF: the jam playing, at once; 0..31: stored in that slot), the jam
  *   74 LIST         -> per user slot: used, name (16)
  *   75 STATUS       -> playing, part, queued, chord, beat, counting, ext, ending, bar u16, bpm x10 u16, slot, dirty,
@@ -29,7 +29,7 @@
  *   7F (FM-1 -> host) the jam changed on the panel: what (JX_*), slot; sent while a host listens (it spoke within 20 s)
  * Part of app.c. */
 
-#define JT_PROTO 1u
+#define JT_PROTO 2u                      /* 2: the factory jams on the wire from 0x40 (there are more than 127) */
 enum { C_HELLO = 0x70, C_TABLE, C_JAM_GET, C_JAM_PUT, C_LIST, C_STATUS, C_TRANSPORT, C_SLOT_OP, C_KIT_DIR, C_KIT_UPLOAD,
        C_KIT_ERASE, C_KIT_READ, C_SETTINGS, C_STATS, C_NOTIFY = 0x7F };
 enum { E_OK, E_ARGS = 1, E_STORE = 12, E_BUSY = 10 };
@@ -95,6 +95,7 @@ static void transport(uint32_t op, uint32_t a, uint32_t b);
 static void upload_progress(uint32_t k, uint32_t n);
 static int user_used(int slot, char *name);
 static int cur_slot_wire(void);
+static int slot_from_wire(int s);
 static int session_dirty(void);
 static uint32_t settings_genre(void);
 static void settings_from_host(const uint8_t *b);
@@ -185,7 +186,7 @@ void app_usb_cmd(const uint8_t *d, uint32_t n)
         break;
     }
     case C_JAM_GET: {
-        int slot = len >= 1u ? b[0] : 0xFF, used = jam_get(slot, &jbuf);
+        int slot = len >= 1u ? b[0] : 0xFF, used = jam_get(slot_from_wire(slot), &jbuf);
         out[0] = used < 0 ? E_ARGS : E_OK;
         out[1] = (uint8_t)(used > 0);
         out[2] = (uint8_t)slot;
@@ -247,8 +248,9 @@ void app_usb_cmd(const uint8_t *d, uint32_t n)
             out[18u + i] = st->level[i];
         out[22] = j->mute;
         put32(out + 23, st->beat_seq);
+        out[27] = st->step;
         jt_peak_reset();                 /* (the peaks: since the last STATUS) */
-        reply(cmd, out, 27);
+        reply(cmd, out, 28);
         break;
     }
     case C_TRANSPORT:

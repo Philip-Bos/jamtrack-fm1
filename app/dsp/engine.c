@@ -850,8 +850,8 @@ void jt_init(void)
     seq_reset();
 }
 
-_Static_assert(NGROOVES == G_WALTZ + 1, "jt_ids.h: the grooves");
-_Static_assert(NBSTYLES == B_DISCO + 1, "jt_ids.h: the bass lines");
-_Static_assert(NCSTYLES == C_PIANO + 1, "jt_ids.h: the comping");
-_Static_assert(NPATCHES == P_BRIGHTLEAD + 1, "jt_ids.h: the sounds");
+_Static_assert(NGROOVES == G_ROCKERS + 1, "jt_ids.h: the grooves");
+_Static_assert(NBSTYLES == B_LOCKED + 1, "jt_ids.h: the bass lines");
+_Static_assert(NCSTYLES == C_BLOCKS + 1, "jt_ids.h: the comping");
+_Static_assert(NPATCHES == P_SAWLEAD + 1, "jt_ids.h: the sounds");
 _Static_assert(NKITS == K_USER + 1, "jt_ids.h: the kits");

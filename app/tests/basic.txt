@@ -129,7 +129,7 @@ turn PRESET 1
 wait 2700
 expect browsing 0
 expect slot 128
-turn PRESET 7 400
+turn PRESET 12 400
 expect browsing 1
 expect slot 128
 wait 1500
@@ -184,12 +184,12 @@ expect livepatch 26
 turn ALGO 1
 wait 100
 expect livepatch 26
-turn ALGO 3 400
+turn ALGO 4 400
 expect livepatch 26
 wait 1500
 expect livepatch 26
 wait 1300
-# (three detents on from SOLO LEAD, past WHISTLE and BRIGHT LEAD: RHODES, sound 8)
+# (four detents on from SOLO LEAD, past WHISTLE, BRIGHT LEAD and SAW LEAD: RHODES, sound 8)
 expect livepatch 8
 expect genre 1
 turn ALGO 2
@@ -242,3 +242,36 @@ expect kitstate0 2
 expect kit_ok 0
 kitwrite 0 5000
 expect kitstate0 1
+# ---- MY LINE: the synth's own steps (LFO, LFO); keys write, OCT+ holds, OCT- rests; the synth plays it
+tap HOME
+factory 11
+wait 200
+tap LFO
+tap LFO
+wait 100
+expect page 17
+expect linecur 0
+turn SELECT 3
+wait 50
+expect linecur 3
+key 14 down
+wait 50
+key 14 up
+wait 50
+expect line3 14
+expect linecur 4
+key 16 down
+wait 50
+key 16 up
+wait 50
+expect line4 143
+tap OCT+
+wait 50
+expect line5 32
+tap OCT-
+wait 50
+expect line6 0
+expect sstyle 15
+turn K3 -4
+wait 50
+expect linelen 12

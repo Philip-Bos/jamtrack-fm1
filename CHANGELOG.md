@@ -1,5 +1,24 @@
 # Changelog
 
+## 0.2: more band, your own synth line
+
+- **More to play with:** 28 grooves (shaker pop, half-time shuffle, breakbeat, trap, new wave, afrobeat, Motown,
+  rockers), 24 bass lines (syncopated, rockers, 808 slide, arpeggio, bossa, offbeat, gallop, locked), 24 ways of
+  comping (skank, gallop, 16th strum, Travis picking, arpeggio down, afro, ripple, blocks), 15 synth lines (octaves,
+  sequence, chimes, gated chords, arpeggio up) and 37 sounds (acid, 808 bass, piano, marimba, harp, clav, glass pad,
+  saw lead, the last also on the keys). The generator uses them too.
+- **160 factory jams:** ten in each of the 16 genres. The 38 from 0.1 are unchanged.
+- **MY LINE, your own synth line:** LFO twice. A 16-step piano roll: SELECT moves the step, the keys write a note,
+  OCT- a rest, OCT+ holds the note before; K1 note, K2 how hard, K3 length (1-16 steps), K4 follow the chords or stay
+  on the key. ARP gives a line to start from. The line moves with each chord through the key's scale. The companion
+  has the same piano roll (click, drag to hold, right-click for how hard) with a playhead.
+- **Changing the scale changes the chords:** a chord that belongs to the old scale becomes the new scale's chord on
+  the same number, keeping its colour (7th, 9th, 6th...); borrowed chords stay as written. Major and back is exact.
+- Fixed: the generator's minor, dorian and mixolydian progressions wrote flats (b3, b6, b7) on top of the scale's
+  own, so some generated jams played the wrong chords.
+- The protocol is version 2: factory slots are 0x40 and up on the wire (160 no longer fit from 0x80). The companion
+  speaks both.
+
 ## 0.1.1: the emulator
 
 - **The emulator:** the whole firmware compiled to WebAssembly, on a drawn FM-1, in the browser

@@ -19,103 +19,103 @@ typedef struct {
 
 static const genre_t GENRES[] = {
     {"INDIE POP", 96, 124, {JT_METER_44, END},
-     {G_STRAIGHT, G_DISCO, G_MOTORIK, G_HALF, END}, {B_ROOT8, B_MELODIC, B_OCT, B_TRES, END},
-     {C_STRUM, C_PIANO, C_EIGHTHS, C_STABS, END}, {SY_HOOK, SY_ARP8, SY_PAD, SY_COUNTER, END}, {K_VINTAGE, K_STUDIO, K_LM, END},
+     {G_STRAIGHT, G_DISCO, G_MOTORIK, G_HALF, G_SHAKER}, {B_ROOT8, B_MELODIC, B_OCT, B_TRES, B_SYNC},
+     {C_STRUM, C_PIANO, C_EIGHTHS, C_STABS, C_16STRUM}, {SY_HOOK, SY_ARP8, SY_PAD, SY_COUNTER, SY_OCTAVES}, {K_VINTAGE, K_STUDIO, K_LM, END},
      {P_FINGER, P_PICK, P_MUTED, END}, {P_CLEAN, P_JANGLE, P_RHODES, P_POLY, END}, {P_SOFTLEAD, P_POLY, P_BELLS, P_PLUCK, END},
      45, 55, 10, 35, 1, 2, 30, 40,
-     {"M:1 5 6m 4", "M:6m 4 1 5", "M:1 3m 4 4m", "M:1maj7 6m7 2m7 5", "M:4 1 5 6m", "x:1 b7 4 1", "M:1 5/3 6m 4",
+     {"M:1 5 6m 4", "M:6m 4 1 5", "M:1 3m 4 4m", "M:1maj7 6m7 2m7 5", "M:4 1 5 6m", "x:1 7 4 1", "M:1 5/3 6m 4",
       "M:2m7 5 1maj7 6m7", "M:4maj7 5 3m7 6m", "M:1 4 6m 5", "M:1 6m 4 5sus4", 0}},
     {"DREAM POP", 70, 100, {JT_METER_44, JT_METER_68, END},
      {G_DREAMY, G_HALF, G_BALLAD, G_BOSSA, END}, {B_SPARSE, B_MELODIC, B_WHOLE, B_TRES, END},
-     {C_HOLD, C_ARP, C_STRUM, C_HALVES, END}, {SY_PAD, SY_COUNTER, SY_BELLS, SY_MELODY, END}, {K_VINTAGE, K_LOFI, K_BRUSH, END},
+     {C_HOLD, C_ARP, C_STRUM, C_HALVES, C_RIPPLE}, {SY_PAD, SY_COUNTER, SY_BELLS, SY_MELODY, SY_CHIMES}, {K_VINTAGE, K_LOFI, K_BRUSH, END},
      {P_MUTED, P_FINGER, P_FRETLESS, END}, {P_CLEAN, P_RHODES, P_JUNO, P_WURLI, END}, {P_JUNO, P_SOFTLEAD, P_VIBES, P_FLUTE, END},
      48, 56, 30, 60, 2, 3, 50, 70,
      {"M:1maj7 4maj7", "M:1maj7 3m7 4maj7 4m6", "m:1m9 49", "d:1m7 47", "M:4maj7 3m7 2m7 1maj7", "M:1maj7 1m7 4maj7 4m7",
-      "m:1m7 b6maj7 b3maj7 b7", "M:6m9 4maj7 1maj7 5sus4", "l:1maj7 2", "m:1m9 b7 b6maj7 5m7", 0}},
+      "m:1m7 6maj7 3maj7 7", "M:6m9 4maj7 1maj7 5sus4", "l:1maj7 2", "m:1m9 7 6maj7 5m7", 0}},
     {"BEDROOM", 70, 95, {JT_METER_44, JT_METER_34, END},
-     {G_BOSSA, G_LOFI, G_DREAMY, G_MACHINE, END}, {B_MELODIC, B_SPARSE, B_TRES, B_FUNK, END},
-     {C_BOSSA, C_PICK, C_HOLD, C_CHARL, END}, {SY_MELODY, SY_BELLS, SY_COUNTER, SY_OFF, END}, {K_LOFI, K_BOX, K_VINTAGE, END},
+     {G_BOSSA, G_LOFI, G_DREAMY, G_MACHINE, G_SHAKER}, {B_MELODIC, B_SPARSE, B_TRES, B_FUNK, B_BOSSA},
+     {C_BOSSA, C_PICK, C_HOLD, C_CHARL, C_TRAVIS}, {SY_MELODY, SY_BELLS, SY_COUNTER, SY_OFF, SY_CHIMES}, {K_LOFI, K_BOX, K_VINTAGE, END},
      {P_FINGER, P_MUTED, P_UPRIGHT, END}, {P_NYLON, P_RHODES, P_CLEAN, P_FELT, END}, {P_FLUTE, P_VIBES, P_SOFTLEAD, P_BELLS, END},
      52, 62, 40, 75, 2, 3, 35, 45,
-     {"M:2m7 57 1maj7 6m7", "M:1maj7 2m7 3m7 4maj7", "M:4maj7 3m7 6m7 2m7", "M:1maj7 6m7 2m9 513", "m:1m7 4m7 b7 b3maj7",
+     {"M:2m7 57 1maj7 6m7", "M:1maj7 2m7 3m7 4maj7", "M:4maj7 3m7 6m7 2m7", "M:1maj7 6m7 2m9 513", "m:1m7 4m7 7 3maj7",
       "M:1maj7 b7 4maj7 4m6", "M:6m7 2m7 5sus4 1maj7", "M:1maj9 4maj9", 0}},
     {"INDIE FUNK", 106, 124, {JT_METER_44, END},
-     {G_DISCO, G_FUNK, G_MOTORIK, END}, {B_OCT, B_DISCO, B_FUNK, B_MOTOWN, END},
-     {C_SCRATCH, C_STABS, C_OFFBEAT, C_EIGHTHS, END}, {SY_STABS, SY_ARP16, SY_HOOK, SY_PAD, END}, {K_VINTAGE, K_STUDIO, K_LM, END},
+     {G_DISCO, G_FUNK, G_MOTORIK, G_BREAK, G_AFRO}, {B_OCT, B_DISCO, B_FUNK, B_MOTOWN, B_LOCKED},
+     {C_SCRATCH, C_STABS, C_OFFBEAT, C_EIGHTHS, C_16STRUM}, {SY_STABS, SY_ARP16, SY_HOOK, SY_PAD, SY_GATED}, {K_VINTAGE, K_STUDIO, K_LM, END},
      {P_PICK, P_FINGER, P_SYNTHB, END}, {P_CLEAN, P_WURLI, P_RHODES, P_POLY, END}, {P_STRINGS, P_BRASS, P_POLY, P_PLUCK, END},
      50, 56, 10, 30, 2, 3, 22, 30,
-     {"d:1m7 47", "M:1maj7 6m7 2m7 57", "m:1m7 4m7 b7 b3maj7", "M:2m7 3m7 4maj7 57", "d:1m7 2m7 b3maj7 47",
-      "M:4maj7 3m7 2m7 1maj7", "m:1m7 b7 b6maj7 57", "d:1m9 49", 0}},
+     {"d:1m7 47", "M:1maj7 6m7 2m7 57", "m:1m7 4m7 7 3maj7", "M:2m7 3m7 4maj7 57", "d:1m7 2m7 3maj7 47",
+      "M:4maj7 3m7 2m7 1maj7", "m:1m7 7 6maj7 57", "d:1m9 49", 0}},
     {"INDIE ROCK", 110, 150, {JT_METER_44, END},
-     {G_STRAIGHT, G_ROCK, G_MOTORIK, G_HALF, G_PUNK}, {B_ROOT8, B_MELODIC, B_16, END},
+     {G_STRAIGHT, G_ROCK, G_MOTORIK, G_HALF, G_PUNK}, {B_ROOT8, B_MELODIC, B_16, B_PEDAL, END},
      {C_EIGHTHS, C_STRUM, C_HALVES, END}, {SY_COUNTER, SY_OFF, SY_ARP8, SY_PAD, END}, {K_ROOM, K_ROCK, K_STUDIO, END},
      {P_PICK, P_FINGER, END}, {P_JANGLE, P_CLEAN, P_ORGAN, END}, {P_SQUARE, P_STRINGS, P_ORGAN, END},
      50, 50, 15, 35, 0, 1, 30, 45,
-     {"M:1 5 6m 4", "M:1 4 6m 5", "x:1 b7 4 1", "m:1m b6 b3 b7", "M:4 5 6m 6m", "M:1 3m 4 5", "M:6m 4 1 5",
-      "m:1m b7 b6 b7", "M:1 1/3 4 4m", 0}},
+     {"M:1 5 6m 4", "M:1 4 6m 5", "x:1 7 4 1", "m:1m 6 3 7", "M:4 5 6m 6m", "M:1 3m 4 5", "M:6m 4 1 5",
+      "m:1m 7 6 7", "M:1 1/3 4 4m", 0}},
     {"FOLK", 80, 124, {JT_METER_44, JT_METER_34, JT_METER_68},
      {G_STOMP, G_TRAIN, G_TOMS, G_WALTZ, G_BALLAD}, {B_TWO, B_ROOT8, B_MELODIC, B_WHOLE, END},
      {C_FOLK, C_PICK, C_BOOM, C_STRUM, END}, {SY_OFF, SY_COUNTER, SY_MELODY, END}, {K_CAJON, K_BRUSH, K_VINTAGE, END},
      {P_UPRIGHT, P_FINGER, END}, {P_ACOUSTIC, P_NYLON, P_CLEAN, END}, {P_FLUTE, P_STRINGS, P_SOFTLEAD, END},
      48, 54, 5, 25, 0, 1, 30, 45,
-     {"M:1 4 1 5", "M:1 5 6m 4", "M:6m 4 1 5", "M:1 4 6m 5", "m:1m b7 b6 b7", "M:1 1/3 4 5", "M:4 1 5 5", "M:1 5/3 4 1", 0}},
+     {"M:1 4 1 5", "M:1 5 6m 4", "M:6m 4 1 5", "M:1 4 6m 5", "m:1m 7 6 7", "M:1 1/3 4 5", "M:4 1 5 5", "M:1 5/3 4 1", 0}},
     {"SOUL", 68, 96, {JT_METER_44, END},
-     {G_BOOMBAP, G_LOFI, G_FUNK, G_BALLAD, END}, {B_MELODIC, B_TRES, B_FUNK, B_SPARSE, END},
+     {G_BOOMBAP, G_LOFI, G_FUNK, G_BALLAD, G_HALFSHUF}, {B_MELODIC, B_TRES, B_FUNK, B_SPARSE, B_SYNC},
      {C_HOLD, C_CHARL, C_PIANO, C_STABS, END}, {SY_COUNTER, SY_PAD, SY_MELODY, END}, {K_VINTAGE, K_LOFI, K_STUDIO, END},
      {P_FINGER, P_FRETLESS, P_SUB, END}, {P_RHODES, P_WURLI, P_ORGAN, END}, {P_STRINGS, P_SOFTLEAD, P_FLUTE, END},
      54, 62, 20, 45, 3, 3, 30, 40,
-     {"M:4maj9 3m7 2m9 1maj9", "M:2m9 513 1maj9 1maj9", "d:1m9 2m7 b3maj7 2m7", "M:1maj9 6m9 2m9 57sus4",
-      "m:1m9 4m9 b7 b3maj7", "M:4maj7 57 3m7 6m7", 0}},
+     {"M:4maj9 3m7 2m9 1maj9", "M:2m9 513 1maj9 1maj9", "d:1m9 2m7 3maj7 2m7", "M:1maj9 6m9 2m9 57sus4",
+      "m:1m9 4m9 7 3maj7", "M:4maj7 57 3m7 6m7", 0}},
     {"CITY POP", 96, 120, {JT_METER_44, END},
-     {G_FUNK, G_DISCO, G_STRAIGHT, END}, {B_FUNK, B_OCT, B_MOTOWN, END},
+     {G_FUNK, G_DISCO, G_STRAIGHT, G_MOTOWN, END}, {B_FUNK, B_OCT, B_MOTOWN, B_LOCKED, END},
      {C_STABS, C_PIANO, C_SCRATCH, END}, {SY_HOOK, SY_STABS, SY_ARP16, END}, {K_STUDIO, K_LM, END},
      {P_PICK, P_FINGER, P_SYNTHB, END}, {P_RHODES, P_CLEAN, P_POLY, END}, {P_BRASS, P_POLY, P_BELLS, END},
      50, 54, 10, 30, 3, 3, 28, 35,
      {"M:4maj7 57 3m7 6m7", "M:4maj7 3m7 2m7 1maj7", "M:2m7 57 3m7 6m7", "M:4maj7 57 3m7 6m 2m7 57 1maj7:8", 0}},
     {"ROCK", 100, 150, {JT_METER_44, END},
-     {G_ROCK, G_STRAIGHT, G_PUNK, G_HALF, END}, {B_ROOT8, B_16, B_MELODIC, END},
+     {G_ROCK, G_STRAIGHT, G_PUNK, G_HALF, G_BREAK}, {B_ROOT8, B_16, B_MELODIC, B_GALLOP, END},
      {C_EIGHTHS, C_STRUM, C_HALVES, END}, {SY_OFF, SY_PAD, END}, {K_ROCK, K_ROOM, END},
      {P_PICK, P_SYNTHB, END}, {P_JANGLE, P_ORGAN, P_CLEAN, END}, {P_ORGAN, P_STRINGS, END},
      50, 50, 10, 30, 0, 0, 30, 45,
-     {"x:15 b75 45 15", "m:1m b6 b7 1m", "M:1 4 5 4", "m:15 b35 45 b65", "M:1 5 4 4", "x:1 b7 b6 b7", 0}},
+     {"x:15 75 45 15", "m:1m 6 7 1m", "M:1 4 5 4", "m:15 35 45 65", "M:1 5 4 4", "x:1 7 b6 7", 0}},
     {"BLUES", 70, 120, {JT_METER_44, JT_METER_128, END},
      {G_SHUFFLE, G_JAZZ, G_BALLAD, END}, {B_BOOGIE, B_WALK, B_ROOT8, END},
      {C_QUARTERS, C_CHARL, C_HOLD, C_STABS, END}, {SY_OFF, SY_COUNTER, END}, {K_VINTAGE, K_BRUSH, K_ROOM, END},
      {P_UPRIGHT, P_FINGER, END}, {P_ORGAN, P_WURLI, P_CLEAN, P_RHODES, END}, {P_ORGAN, P_BRASS, END},
      60, 66, 10, 30, 2, 2, 30, 45,
      {"M:17:16 47:8 17:8 57:4 47:4 17:4 57:4", "M:17:4 47:4 17:8 47:8 17:8 57:4 47:4 17:4 57:4",
-      "m:1m7:16 4m7:8 1m7:8 b67:4 57:4 1m7:4 57:4", "M:17:4 57:4 47:8 17:4 57:4 17:4 57:4", 0}},
+      "m:1m7:16 4m7:8 1m7:8 67:4 57:4 1m7:4 57:4", "M:17:4 57:4 47:8 17:4 57:4 17:4 57:4", 0}},
     {"HIP HOP", 80, 96, {JT_METER_44, END},
-     {G_BOOMBAP, G_LOFI, G_MACHINE, END}, {B_HIPHOP, B_SPARSE, B_WHOLE, END},
+     {G_BOOMBAP, G_LOFI, G_MACHINE, G_TRAP, END}, {B_HIPHOP, B_SPARSE, B_WHOLE, B_808, END},
      {C_HOLD, C_STABS, C_CHARL, END}, {SY_MELODY, SY_BELLS, SY_COUNTER, END}, {K_LOFI, K_808, K_VINTAGE, END},
-     {P_SUB, P_MOOG, P_FINGER, END}, {P_RHODES, P_FELT, P_STRINGS, END}, {P_VIBES, P_BELLS, P_FLUTE, END},
+     {P_SUB, P_MOOG, P_FINGER, P_808}, {P_RHODES, P_FELT, P_STRINGS, P_PIANO, END}, {P_VIBES, P_BELLS, P_FLUTE, END},
      56, 64, 30, 60, 2, 3, 25, 35,
-     {"m:1m7 b6maj7", "m:1m9 4m9", "d:1m7 2m7", "M:2m9 57 1maj9 6m9", "m:1m b6 b3 b7", "m:1m7 b7 b6maj7 b6maj7", 0}},
+     {"m:1m7 6maj7", "m:1m9 4m9", "d:1m7 2m7", "M:2m9 57 1maj9 6m9", "m:1m 6 3 7", "m:1m7 7 6maj7 6maj7", 0}},
     {"REGGAE", 68, 90, {JT_METER_44, END},
-     {G_ONEDROP, END}, {B_DROP, B_SPARSE, END}, {C_OFFBEAT, END}, {SY_OFF, SY_PAD, END}, {K_STUDIO, K_VINTAGE, END},
+     {G_ONEDROP, G_ROCKERS, END}, {B_DROP, B_SPARSE, B_ROCKERS, END}, {C_OFFBEAT, C_SKANK, END}, {SY_OFF, SY_PAD, END}, {K_STUDIO, K_VINTAGE, END},
      {P_SUB, P_FINGER, END}, {P_ORGAN, P_CLEAN, END}, {P_ORGAN, P_BRASS, END},
      52, 58, 15, 35, 0, 1, 35, 45,
-     {"M:1 4", "M:1 5 6m 4", "m:1m b7", "M:1 4 5 4", "m:1m 4m", 0}},
+     {"M:1 4", "M:1 5 6m 4", "m:1m 7", "M:1 4 5 4", "m:1m 4m", 0}},
     {"JAZZ", 100, 180, {JT_METER_44, JT_METER_34, END},
      {G_JAZZ, G_BOSSA, END}, {B_WALK, END}, {C_CHARL, C_HOLD, C_BOSSA, END}, {SY_OFF, SY_MELODY, END}, {K_BRUSH, END},
      {P_UPRIGHT, END}, {P_RHODES, P_FELT, P_ORGAN, END}, {P_VIBES, P_FLUTE, END},
      62, 68, 5, 20, 2, 3, 30, 45,
      {"M:2m7 57 1maj7:8", "M:1maj7 6m7 2m7 57", "M:3m7 67 2m7 57", "m:2m7b5 57 1m7:8", "M:1maj7:8 2m7 57", 0}},
     {"COUNTRY", 90, 130, {JT_METER_44, JT_METER_34, END},
-     {G_TRAIN, G_STRAIGHT, G_WALTZ, END}, {B_TWO, END}, {C_BOOM, C_FOLK, END}, {SY_OFF, SY_COUNTER, END}, {K_BRUSH, K_STUDIO, END},
+     {G_TRAIN, G_STRAIGHT, G_WALTZ, G_SHAKER, END}, {B_TWO, B_GALLOP, END}, {C_BOOM, C_FOLK, C_TRAVIS, C_GALLOP, END}, {SY_OFF, SY_COUNTER, END}, {K_BRUSH, K_STUDIO, END},
      {P_UPRIGHT, P_PICK, END}, {P_ACOUSTIC, P_CLEAN, END}, {P_SOFTLEAD, P_STRINGS, END},
      50, 54, 5, 20, 0, 0, 25, 35,
      {"M:1 4 1 5", "M:1:8 4:8 5:8 1:8", "M:1 1 4 4 1 5 1 1", "M:1 4 5 1", 0}},
     {"SYNTH POP", 100, 128, {JT_METER_44, END},
-     {G_MACHINE, G_DISCO, G_STRAIGHT, G_MOTORIK, END}, {B_16, B_OCT, B_ROOT8, END},
-     {C_HOLD, C_STABS, C_EIGHTHS, END}, {SY_ARP16, SY_HOOK, SY_PULSE, END}, {K_LM, K_808, K_BOX, END},
-     {P_SYNTHB, P_MOOG, END}, {P_JUNO, P_POLY, P_STRINGS, END}, {P_PLUCK, P_SQUARE, P_BELLS, END},
+     {G_MACHINE, G_DISCO, G_STRAIGHT, G_MOTORIK, G_NEWWAVE}, {B_16, B_OCT, B_ROOT8, B_PEDAL, END},
+     {C_HOLD, C_STABS, C_EIGHTHS, END}, {SY_ARP16, SY_HOOK, SY_PULSE, SY_ARPUP, SY_GATED}, {K_LM, K_808, K_BOX, END},
+     {P_SYNTHB, P_MOOG, P_ACID, END}, {P_JUNO, P_POLY, P_STRINGS, P_GLASS, END}, {P_PLUCK, P_SQUARE, P_BELLS, END},
      50, 50, 10, 30, 1, 2, 30, 50,
-     {"m:1m b6 b3 b7", "M:6m 4 1 5", "m:1m b7 b6 b7", "M:4 5 6m 1/3", "m:1m 4m b6 b7", 0}},
+     {"m:1m 6 3 7", "M:6m 4 1 5", "m:1m 7 6 7", "M:4 5 6m 1/3", "m:1m 4m 6 7", 0}},
     {"BALLAD", 60, 84, {JT_METER_44, JT_METER_68, JT_METER_34},
      {G_BALLAD, G_WALTZ, G_DREAMY, END}, {B_WHOLE, B_SPARSE, B_MELODIC, END},
-     {C_ARP, C_HOLD, C_PIANO, C_PICK, END}, {SY_PAD, SY_COUNTER, END}, {K_BRUSH, K_STUDIO, K_VINTAGE, END},
-     {P_FINGER, P_FRETLESS, P_SUB, END}, {P_FELT, P_RHODES, P_NYLON, END}, {P_STRINGS, P_JUNO, END},
+     {C_ARP, C_HOLD, C_PIANO, C_PICK, C_ARPDOWN}, {SY_PAD, SY_COUNTER, END}, {K_BRUSH, K_STUDIO, K_VINTAGE, END},
+     {P_FINGER, P_FRETLESS, P_SUB, END}, {P_FELT, P_RHODES, P_NYLON, P_PIANO, P_HARP}, {P_STRINGS, P_JUNO, END},
      48, 52, 10, 30, 1, 2, 40, 60,
      {"M:1 5/3 6m 4", "M:1 3m 4 5", "M:6m 4 1 5", "M:1 6m 4 5", "M:4 5 3m 6m", "M:1 1/3 4 4m", 0}},
 };
@@ -273,6 +273,14 @@ void jt_jam_sanitize(jt_jam_t *j)
     j->switch_at %= JS_N;
     for (i = 0; i < sizeof j->rsv; i++)
         j->rsv[i] = 0;
+    for (i = 0; i < JT_LINE; i++) {
+        uint8_t v = j->line[i], n = v & 0x1Fu;
+        if (!n)
+            j->line[i] = v == JT_LN_HOLD ? JT_LN_HOLD : 0;
+        else
+            j->line[i] = n > JT_LN_TOP ? 0 : (uint8_t)(v & ~JT_LN_HOLD);
+    }
+    j->line_set &= 0x3Fu;
     for (k = 0; k < 2; k++) {
         jt_part_t *p = &j->part[k];
         if (p->n < 1 || p->n > JT_NCHORD)
@@ -289,6 +297,38 @@ void jt_jam_sanitize(jt_jam_t *j)
             if (c->bass >= JB_N) c->bass = 0;
         }
     }
+}
+
+int jt_line_len(const jt_jam_t *j) { return (j->line_set & 15u) ? (int)(j->line_set & 15u) : (int)JT_LINE; }
+int jt_line_empty(const jt_jam_t *j)
+{
+    uint32_t i;
+    for (i = 0; i < JT_LINE; i++)
+        if (j->line[i] & 0x1Fu)
+            return 0;
+    return 1;
+}
+/* the hook (seq.h's SY_HOOK) written out as steps: its rhythm, its rungs of the chord as steps of the scale */
+void jt_line_seed(jt_jam_t *j)
+{
+    const char *rhy = HOOK_RHY[(uint32_t)j->seed % NHOOK_RHY];
+    int s, ni = 0;
+    static const uint8_t RUNG[3] = {0, 2, 4};
+    for (s = 0; s < (int)JT_LINE; s++) {
+        uint8_t v = 0;
+        if (rhy[s] == 'x') {
+            uint32_t r = (uint32_t)j->seed * 7u + (uint32_t)ni * 13u;
+            int rung = (int)((r * 2654435761u) >> 29) - 2, o = rung >= 0 ? rung / 3 : -((-rung + 2) / 3);
+            int d = o * 7 + RUNG[rung - o * 3] + (int)JT_LN_ROOT;
+            v = (uint8_t)(d < 1 ? 1 : d > (int)JT_LN_TOP ? JT_LN_TOP : d);
+            if (s % 4 == 0)
+                v |= 2u << 6;
+            ni++;
+        } else if (rhy[s] == '-')
+            v = JT_LN_HOLD;
+        j->line[s] = v;
+    }
+    j->line_set = 0;
 }
 
 void jt_generate(jt_jam_t *j, uint32_t genre, uint32_t seed, int what)
@@ -358,5 +398,7 @@ void jt_generate(jt_jam_t *j, uint32_t genre, uint32_t seed, int what)
         j->space = g->space;
         j->level[JP_SYNTH] = (uint8_t)(j->sstyle == SY_PAD ? 48 : j->sstyle == SY_BELLS ? 50 : 58);
     }
+    if (what == JG_ALL)
+        jt_line_seed(j);
     jt_jam_sanitize(j);
 }

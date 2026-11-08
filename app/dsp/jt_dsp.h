@@ -15,6 +15,7 @@
 #define JT_STEP_TICKS 6u                 /* a step is a sixteenth */
 #define JT_NCHORD 12u                    /* chords a part */
 #define JT_NAME 16u
+#define JT_LINE 16u                      /* MY LINE's steps */
 
 /* ---------------------------------------------------------------- the jam */
 /* A chord: a degree of the key's scale (1..7, as the Nashville number), maybe flat or sharp, a quality (AUTO: the
@@ -64,13 +65,28 @@ typedef struct {
     uint8_t width;                       /* 0..100: stereo width */
     uint8_t seed;                        /* the patterns' variation: hooks, ghost notes, fills */
     uint8_t switch_at;                   /* JS_*: a part change at the next bar or at the end of the round */
-    uint8_t rsv[23];                     /* room for what comes (zero) */
+    uint8_t line[JT_LINE];               /* MY LINE (sstyle SY_USER): the synth's own steps, JT_LN_* */
+    uint8_t line_set;                    /* bits 0-3: its length in sixteenths (0: 16); JT_LS_* */
+    uint8_t rsv[6];                      /* room for what comes (zero) */
     jt_part_t part[2];
 } jt_jam_t;
 
 #define JT_JAM_MAGIC 0x314D414Au         /* "JAM1" */
 #define JT_JAM_BYTES 192u
 _Static_assert(sizeof(jt_jam_t) == JT_JAM_BYTES, "the jam's bytes are fixed (the wire, the store)");
+
+/* MY LINE's steps, a byte each: 0 a rest; JT_LN_HOLD alone: the note before goes on; else bits 0-4 the note, 1..22 (8 the
+ * chord's root, a step of the key's scale each side: 1 an octave below .. 22 two octaves above), bits 6-7 how hard:
+ * 0 normal, 1 soft, 2 loud, 3 an accent. The notes follow the chords (the line moves with each chord through the
+ * key's scale), or, JT_LS_KEY, stay on the key's own. */
+#define JT_LN_HOLD 0x20u
+#define JT_LN_ROOT 8u
+#define JT_LN_TOP 22u
+#define JT_LS_KEY 0x10u
+#define JT_LS_SLIDE 0x20u                /* the notes slide into each other */
+int jt_line_len(const jt_jam_t *j);
+void jt_line_seed(jt_jam_t *j);          /* MY LINE from the jam's hook (a start to edit) */
+int jt_line_empty(const jt_jam_t *j);
 
 /* scales */
 enum { JM_MAJOR, JM_MINOR, JM_DORIAN, JM_MIXO, JM_LYDIAN, JM_PHRYG, JM_HARM, JM_N };
@@ -108,6 +124,7 @@ int jt_scale_pc(const jt_jam_t *j, int i);   /* the key's scale degree i (0..6) 
 int jt_bar_beats(int meter);
 int jt_beat_steps(int meter, int beat);  /* steps in a beat (4, or 6 in 6/8, 12/8, the 7/8's last) */
 int jt_part_beats(const jt_part_t *p);
+void jt_mode_set(jt_jam_t *j, int mode);   /* the scale changed, the written chords moved with it (the degrees' own) */
 /* a progression in text ("1maj7:4 6m7:4 2m7 5sus4:2 5:2", lengths in beats, 4 when left out) into a part; 0 = parsed.
  * The degrees: 1..7, b/# before; qualities as the screen writes them; /3 /5 /7 /1 the bass */
 int jt_parse_prog(const char *s, jt_part_t *p, int beats_default);
@@ -158,6 +175,7 @@ typedef struct {
     uint8_t level[JP_N];                 /* each part's meter, 0..100 */
     uint8_t voices;                      /* synth voices sounding */
     uint8_t chord_step, chord_len;       /* steps of the chord playing so far, and its length in steps (a ring) */
+    uint8_t step;                        /* the step playing in the bar (MY LINE's playhead) */
 } jt_status_t;
 
 typedef struct {                         /* the settings the engine reads (the app keeps them) */

@@ -26,3 +26,4 @@ repo = "https://github.com/Philip-Bos/jamtrack-fm1"
 licence = "MIT"
 credits = "Built on fm1-base (Charles Vestal) and felucca-bsp (Leo Kuroshita, Hügelton Instruments), MPL-2.0."
 font_full = ["M", "L"]           # lower case in the big fonts: chord names (m7, maj9, sus4)
+font_trim = true                # each glyph stored as its lit box only: the same pixels, the fonts about half the size

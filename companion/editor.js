@@ -145,7 +145,7 @@ function band() {
     select("Bass sound", patchOpts(1), () => j.patch[0], (v) => { j.patch[0] = v; }),
     select("Chords", T().comp, () => j.cstyle, (v) => { j.cstyle = v; }),
     select("Chord sound", patchOpts(2), () => j.patch[1], (v) => { j.patch[1] = v; }),
-    select("Synth line", T().synth, () => j.sstyle, (v) => { j.sstyle = v; }),
+    select("Synth line", T().synth, () => j.sstyle, (v) => { j.sstyle = v; lineEd(); }),
     select("Synth sound", patchOpts(2), () => j.patch[2], (v) => { j.patch[2] = v; }));
   $("feel").replaceChildren(
     range("Swing", 0, 100, () => j.swing, (v) => { j.swing = v; }, (v) => (v === 50 ? "50 (its own)" : v)),
@@ -206,11 +206,119 @@ function keys() {
     el("label", { class: "field chk" }, mono, el("span", {}, "Mono: one note, sliding to the next (a lead)")), rng("Reverb", 10));
 }
 
+// ---------------------------------------------------------------- MY LINE: the synth's own steps, as a piano roll
+const syUser = () => T().synth.indexOf("MY LINE");
+const ROWS = J.LN_TOP;                    // rows 22 (top) .. 1
+let drag = null;                          // {step, row}: a note being drawn out
+function lineSet(fn, redrawBand = false) {
+  const j = app.jam;
+  if (!j.line) j.line = new Array(J.LINE).fill(0);
+  fn(j);
+  let sw = false;
+  if (j.sstyle !== syUser()) { j.sstyle = syUser(); sw = true; }
+  edited(false);
+  if (sw || redrawBand) band();
+  lineEd();
+}
+function lineEd() {
+  const j = app.jam, box = $("line");
+  if (!box) return;
+  if (!j.line) j.line = new Array(J.LINE).fill(0);
+  const len = J.lineLen(j), roll = el("div", { class: "roll" });
+  roll.append(el("div", { class: "head" }));
+  for (let i = 0; i < J.LINE; i++) roll.append(el("div", { class: "head", "data-step": i }, i % 4 === 0 ? String(i / 4 + 1) : ""));
+  // where each step's note is, holds included
+  const at = new Array(J.LINE).fill(null);
+  for (let i = 0; i < len; i++) {
+    const n = J.lineNote(j.line[i]);
+    if (!n) continue;
+    at[i] = { row: n, start: i, vel: J.lineVel(j.line[i]) };
+    for (let k = i + 1; k < len && J.isHold(j.line[k]); k++) at[k] = { row: n, start: i, vel: J.lineVel(j.line[i]), hold: true };
+  }
+  for (let row = ROWS; row >= 1; row--) {
+    const d = row - J.LN_ROOT, one = ((d % 7) + 7) % 7 === 0;
+    roll.append(el("div", { class: "lab" + (one ? " one" : "") }, J.lineRowName(j, row)));
+    for (let i = 0; i < J.LINE; i++) {
+      const a = at[i] && at[i].row === row ? at[i] : null;
+      const cls = ["c", i % 4 === 0 ? "beat" : "", one ? "one" : "", i >= len ? "out" : "",
+                   a ? (a.hold ? "h" : "n") + " v" + a.vel : ""].join(" ");
+      roll.append(el("div", { class: cls, "data-step": i, "data-row": row }));
+    }
+  }
+  roll.addEventListener("contextmenu", (e) => e.preventDefault());
+  roll.addEventListener("pointerdown", (e) => {
+    const c = e.target.closest(".c");
+    if (!c || c.classList.contains("out")) return;
+    const i = +c.dataset.step, row = +c.dataset.row, a = at[i] && at[i].row === row ? at[i] : null;
+    if (e.button === 2 || e.altKey) {     // how hard: normal, loud, accent, soft
+      if (a) lineSet((jj) => { const v = jj.line[a.start]; jj.line[a.start] = (v & 0x3F) | ([2, 0, 3, 1][v >> 6] << 6); });
+      return;
+    }
+    if (a && !a.hold) {                   // its start again: out, holds and all
+      lineSet((jj) => { jj.line[i] = 0; for (let k = i + 1; k < J.LINE && J.isHold(jj.line[k]); k++) jj.line[k] = 0; });
+      return;
+    }
+    if (a && a.hold) {                    // inside a held note: it ends here
+      lineSet((jj) => { for (let k = i; k < J.LINE && J.isHold(jj.line[k]); k++) jj.line[k] = 0; });
+      return;
+    }
+    lineSet((jj) => {                     // a new note (what was there goes; a note it cut short keeps its start)
+      for (let k = i + 1; k < J.LINE && J.isHold(jj.line[k]); k++) jj.line[k] = 0;
+      jj.line[i] = row | ((i % 4 === 0 ? 2 : 0) << 6);
+    });
+    drag = { step: i, row };
+    roll.setPointerCapture?.(e.pointerId);
+  });
+  roll.addEventListener("pointermove", (e) => {
+    if (!drag) return;
+    const c = document.elementFromPoint(e.clientX, e.clientY)?.closest(".roll .c");
+    if (!c) return;
+    const to = Math.min(+c.dataset.step, len - 1);
+    if (to <= drag.step) return;
+    const jj = app.jam;
+    let changed = false;
+    for (let k = drag.step + 1; k < J.LINE; k++) {
+      const want = k <= to ? J.LN_HOLD : (J.isHold(jj.line[k]) ? 0 : jj.line[k]);
+      if (jj.line[k] !== want) { jj.line[k] = want; changed = true; }
+    }
+    if (changed) { edited(false); lineEd(); }
+  });
+  const end = () => { drag = null; };
+  roll.addEventListener("pointerup", end);
+  roll.addEventListener("pointercancel", end);
+  const mode = ((j.lineSet & J.LS_KEY) ? 1 : 0);
+  const tools = el("div", { class: "row gap wrap line-tools" },
+    j.sstyle === syUser() ? el("span", { class: "muted small" }, "The synth plays this line.")
+      : el("button", { type: "button", onclick: () => lineSet(() => {}) }, "Play this line on the synth"),
+    select("Length", Array.from({ length: 16 }, (_, k) => `${k + 1} step${k ? "s" : ""}`), () => len - 1,
+      (v) => { j.lineSet = (j.lineSet & 0xF0) | (v + 1 === 16 ? 0 : v + 1); lineEd(); }),
+    select("Follows", ["the chords", "the key"], () => mode,
+      (v) => { j.lineSet = (j.lineSet & ~J.LS_KEY) | (v ? J.LS_KEY : 0); }),
+    check("Slide note to note", () => j.lineSet & J.LS_SLIDE, (v) => { j.lineSet = (j.lineSet & ~J.LS_SLIDE) | (v ? J.LS_SLIDE : 0); }),
+    el("button", { type: "button", class: "ghost", title: "every note a step of the scale higher", onclick: () => lineSet((jj) => {
+      jj.line = jj.line.map((v) => (J.lineNote(v) && J.lineNote(v) < J.LN_TOP ? v + 1 : v)); }) }, "▲"),
+    el("button", { type: "button", class: "ghost", title: "every note a step of the scale lower", onclick: () => lineSet((jj) => {
+      jj.line = jj.line.map((v) => (J.lineNote(v) > 1 ? v - 1 : v)); }) }, "▼"),
+    el("button", { type: "button", class: "ghost", title: "the line a step later", onclick: () => lineSet((jj) => {
+      const l = J.lineLen(jj), a = jj.line.slice(0, l); a.unshift(a.pop()); if (J.isHold(a[0])) a[0] = 0; jj.line.splice(0, l, ...a); }) }, "→"),
+    el("button", { type: "button", class: "ghost danger", onclick: () => lineSet((jj) => { jj.line = new Array(J.LINE).fill(0); }) }, "Clear"));
+  box.replaceChildren(roll, tools);
+  liveLine();
+}
+function liveLine() {                     // the playhead
+  const st = app.status, j = app.jam, box = $("line");
+  if (!box || !j) return;
+  const on = !!st && st.playing && !st.counting && st.step >= 0 && j.sstyle === syUser();
+  const ph = on ? st.step % J.lineLen(j) : -1;
+  for (const c of box.querySelectorAll("[data-step]")) c.classList.toggle("play", +c.dataset.step === ph);
+}
+
 function all() {
   song();
   part(0);
   part(1);
   band();
+  lineEd();
 }
 
 function live(s) {
@@ -219,12 +327,13 @@ function live(s) {
   $("live").classList.toggle("ext", s.ext);
   for (let p = 0; p < 4; p++) { const m = $(`meter${p}`); if (m) m.style.width = `${s.levels[p]}%`; }
   liveChips();
+  liveLine();
 }
 
 export function init() {
   $("j-name").addEventListener("input", (e) => { app.jam.name = e.target.value.toUpperCase().replace(/[^A-Z0-9 .'-]/g, ""); edited(); });
   $("j-key").addEventListener("change", (e) => { app.jam.key = +e.target.value; edited(); part(0); part(1); });
-  $("j-mode").addEventListener("change", (e) => { app.jam.mode = +e.target.value; edited(); part(0); part(1); });
+  $("j-mode").addEventListener("change", (e) => { J.modeSet(app.jam, +e.target.value); edited(); part(0); part(1); });
   $("j-meter").addEventListener("change", (e) => { app.jam.meter = +e.target.value; edited(); part(0); part(1); });
   $("j-bpm").addEventListener("change", (e) => { app.jam.bpm10 = Math.round(Math.max(40, Math.min(240, +e.target.value || 100)) * 10); edited(); });
   const g = $("g-genre");

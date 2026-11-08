@@ -135,6 +135,17 @@ export function progText(chords, beatsDefault = 4) {
   }).join(" ");
 }
 
+// ---------------------------------------------------------------- MY LINE (jt_dsp.h): 16 steps, a byte each
+export const LINE = 16, LN_HOLD = 0x20, LN_ROOT = 8, LN_TOP = 22, LS_KEY = 0x10, LS_SLIDE = 0x20;
+export const lineLen = (j) => (j.lineSet & 15) || LINE;
+export const lineNote = (v) => v & 0x1F;           // 0 none, 1..22 (8: the chord's root)
+export const lineVel = (v) => v >> 6;              // 0 normal, 1 soft, 2 loud, 3 accent
+export const isHold = (v) => v === LN_HOLD;
+export function lineRowName(j, row) {          // "5 G", "3+ E": the number in the key, its note (as the FM-1 shows it)
+  const d = row - LN_ROOT, o = Math.floor(d / 7), m = d - 7 * o;
+  return `${m + 1}${o > 1 ? "++" : o > 0 ? "+" : o < 0 ? "-" : ""} ${noteName(j.key + SCALE[j.mode % 7][m], keyFlats(j))}`;
+}
+
 // ---------------------------------------------------------------- the 192 bytes
 const s8 = (v) => (v << 24) >> 24;
 export function decode(b) {
@@ -151,7 +162,8 @@ export function decode(b) {
     fills: b[28], push: b[29], color: b[30], chain: b[31], kit: b[32], groove: b[33], bstyle: b[34], cstyle: b[35],
     sstyle: b[36], count: b[37], patch: [b[38], b[39], b[40]], mute: b[41], level: [...b.slice(42, 46)],
     tone: [...b.slice(46, 50)], verb: [...b.slice(50, 54)], oct: [...b.slice(54, 58)].map(s8), rev: b[58], space: b[59],
-    tape: b[60], glue: b[61], width: b[62], seed: b[63], switchAt: b[64], part: [part(88), part(140)],
+    tape: b[60], glue: b[61], width: b[62], seed: b[63], switchAt: b[64], line: [...b.slice(65, 81)], lineSet: b[81],
+    part: [part(88), part(140)],
   };
 }
 export function encode(j) {
@@ -169,6 +181,8 @@ export function encode(j) {
   u8(41, j.mute);
   for (let i = 0; i < 4; i++) { u8(42 + i, j.level[i]); u8(46 + i, j.tone[i]); u8(50 + i, j.verb[i]); b[54 + i] = j.oct[i] & 255; }
   u8(58, j.rev); u8(59, j.space); u8(60, j.tape); u8(61, j.glue); u8(62, j.width); u8(63, j.seed); u8(64, j.switchAt);
+  for (let i = 0; i < LINE; i++) u8(65 + i, (j.line || [])[i]);
+  u8(81, (j.lineSet || 0) & 0x3F);
   j.part.forEach((p, k) => {
     const o = 88 + 52 * k;
     u8(o, p.n); u8(o + 1, p.energy); u8(o + 2, p.reps); u8(o + 3, p.var);
@@ -193,4 +207,32 @@ export function fromFile(text) {
   if (!o.jamtrack || !o.part) throw new Error("not a JAMTRACK jam file");
   delete o.jamtrack; delete o.progA; delete o.progB;
   return decode(encode(o));             // through the bytes: every field in range as the FM-1 keeps it
+}
+
+// a change of scale (theory.h jt_mode_set): the chords the old scale gave become the new scale's on the same degrees
+export function modeSet(j, mode) {
+  const FAM = [0, 1, 2, 3, 4, 0, 0, 1, 2, 1, 3, 1, 1, 2, 1, 1, 2, 0, 2, 3, 2, 2, 1, 1, 0];
+  const SEV = [0, 0, 0, 0, 0, 0, 0, 11, 10, 10, 10, 0, 11, 10, 10, 0, 0, 0, 10, 9, 11, 0, 10, 0, 0];
+  const EXT = [0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 4, 2, 2, 2, 3, 3, 0, 5, 1, 1, 4, 6, 7, 0];
+  const TO = [[1, 7, 12, 15, 11, 12, 12, 23], [1, 9, 14, 15, 11, 14, 22, 23], [2, 8, 13, 16, 21, 18, 13, 16],
+              [2, 20, 13, 16, 21, 18, 13, 16], [3, 10, 10, 10, 3, 10, 10, 10], [3, 19, 19, 19, 3, 19, 19, 19]];
+  const diat = (m, i) => {
+    const s = SCALE[m % 7], t = mod12(s[(i + 2) % 7] - s[i]), f = mod12(s[(i + 4) % 7] - s[i]);
+    return { fam: t === 4 ? (f === 8 ? 4 : 1) : f === 6 ? 3 : 2, sev: mod12(s[(i + 6) % 7] - s[i]) };
+  };
+  const from = j.mode % 7;
+  mode = ((mode % 7) + 7) % 7;
+  if (from !== mode)
+    for (const p of j.part)
+      for (const c of p.c) {
+        const q = c.qual < 25 ? c.qual : 0, i = degIndex(c.deg);
+        if (degAcc(c.deg) || !FAM[q]) continue;
+        const a = diat(from, i);
+        if (FAM[q] !== a.fam || (SEV[q] && SEV[q] !== a.sev)) continue;
+        const b = diat(mode, i);
+        if (b.fam === 4) { c.qual = 4; continue; }
+        const row = b.fam === 1 ? (b.sev === 11 ? 0 : 1) : b.fam === 2 ? (b.sev === 11 ? 3 : 2) : (b.sev === 9 ? 5 : 4);
+        c.qual = TO[row][EXT[q]];
+      }
+  j.mode = mode;
 }

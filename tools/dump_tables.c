@@ -83,6 +83,21 @@ int main(void)
                                     printf("]]");
                                 }
     }
+    printf("\n  ],\n  \"modeTests\": [\n");
+    {                                    /* every 4th factory jam into each scale: its chords' qualities */
+        int n = 0, m, k, c;
+        for (i = 0; i < (uint32_t)NFACTORY; i += 4)
+            for (m = 0; m < JM_N; m++) {
+                jt_jam_t j;
+                factory_jam((int)i, &j);
+                jt_mode_set(&j, m);
+                printf("%s    [%u, %d, [", n++ ? ",\n" : "", i, m);
+                for (k = 0; k < 2; k++)
+                    for (c = 0; c < (int)JT_NCHORD; c++)
+                        printf("%s%d", k || c ? ", " : "", j.part[k].c[c].qual);
+                printf("]]");
+            }
+    }
     printf("\n  ]\n}\n");
     return 0;
 }

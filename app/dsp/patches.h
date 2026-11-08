@@ -92,5 +92,22 @@ static const patch_t PATCHES[] = {
      {3, 2, 12, .12f, 0, .03f, 4000, .05f, .2f, .3f, .22f, 1}, .75f},
     {"BRIGHT LEAD", JK_POLY | JK_LEAD, E_SUB, VO_CLOSE, 0, 0, 35, 0, .004f, .5f, .7f, .25f,
      {1, 0, .07f, .5f, .15f, 0, 2600, .35f, 1.2f, .3f, .16f, 2}, .45f},
+    /* ---- more (after the leads: the jams' numbers stay) */
+    {"ACID", JK_BASS, E_SUB, VO_CLOSE, 0, 0, 0, 0, .002f, .25f, .35f, .06f,
+     {0, 0, 0, 0, .25f, 0, 240, .78f, 4.8f, .16f, 0, 2}, .8f},
+    {"808 BASS", JK_BASS, E_SUB, VO_CLOSE, 0, 0, 0, 0, .002f, 1.6f, .0f, .25f,
+     {3, 2, 0, .1f, 0, 0, 900, 0, 1.0f, .05f, 0, 1}, 1.35f},
+    {"PIANO", JK_POLY, E_FM, VO_CLOSE, 0, 0, 0, 0, .001f, 3.2f, 0, .3f,
+     {1, 2.2f, .9f, .25f, 2, .12f, .3f, .1f, 0, .9f}, .8f},
+    {"MARIMBA", JK_POLY, E_FM, VO_CLOSE, 0, 0, 5, 0, .001f, .9f, 0, .4f,
+     {4, 2.2f, .06f, 0, 10, .05f, .02f, 0, 0, .5f}, .9f},
+    {"HARP", JK_POLY, E_KS, VO_OPEN, 6, 0, 25, 0, .001f, 1, 1, .3f,
+     {.6f, .28f, 3.2f, .3f, .2f, 0, .05f, 0}, .8f},
+    {"CLAV", JK_POLY, E_KS, VO_CLOSE, 0, 0, 30, 0, .001f, 1, 1, .05f,
+     {.95f, .5f, .9f, .08f, .1f, .35f, .4f, 0}, .7f},
+    {"GLASS PAD", JK_POLY, E_SUB, VO_OPEN, 0, 0, 95, 0, .8f, 1.5f, .8f, 1.6f,
+     {2, 1, 12.08f, .35f, 0, 0, 3000, .1f, .4f, 1.5f, .03f, 1}, .45f},
+    {"SAW LEAD", JK_POLY | JK_LEAD, E_SUB, VO_CLOSE, 0, 0, 40, 0, .004f, .4f, .75f, .25f,
+     {0, 0, .12f, .6f, 0, 0, 2200, .3f, 1.0f, .3f, .18f, 2}, .42f},
 };
 #define NPATCHES (sizeof(PATCHES) / sizeof(PATCHES[0]))
