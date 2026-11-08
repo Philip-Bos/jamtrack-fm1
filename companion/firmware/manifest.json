@@ -1,8 +1,8 @@
 {
  "name": "JAMTRACK",
- "version": "0.2",
- "file": "jamtrack-0.2.fwsc",
- "product": "FM-1_5268000200",
- "sha256": "ff6a160b5617dad91c3dd81237bf437f5f4871ef9476c7d1955944fd072b5743",
+ "version": "0.2.1",
+ "file": "jamtrack-0.2.1.fwsc",
+ "product": "FM-1_5268000201",
+ "sha256": "821f3dbcd7779aa9bb750e28ae0cc1e56d310f38d00d6680f7fbac181544f0f9",
  "size": 611490
 }

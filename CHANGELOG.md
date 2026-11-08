@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.1: a smooth ring
+
+- **The ring around the chord on PLAY fills smoothly**, following the band between beats instead of jumping a
+  beat at a time. Each frame draws only the bit of ring it gained.
+- **The companion's Guide is a full manual:** every page and knob with the FM-1's own screens, a drawn panel,
+  MY LINE, performing, saving and how much fits, the loop pedal, MIDI and every list.
+- The companion's Jam tab: the play and generate buttons line up again.
+
 ## 0.2: more band, your own synth line
 
 - **More to play with:** 28 grooves (shaker pop, half-time shuffle, breakbeat, trap, new wave, afrobeat, Motown,
