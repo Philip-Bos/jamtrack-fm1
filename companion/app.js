@@ -163,7 +163,9 @@ async function init() {
   try { t = localStorage.getItem("jt.tab") || "jam"; } catch { /* */ }
   const h = location.hash.slice(1);
   if ($("tab-" + h)) t = h;            // a link to a tab: #library, #kit, #guide
+  else if (h.startsWith("g-") && $(h)) t = "guide";   // a link to a chapter of the guide: #g-save
   tab(t);
+  if (t === "guide" && h.startsWith("g-")) $(h).scrollIntoView();
   app.emit("jam", "start");
   poll();
   if (navigator.requestMIDIAccess && isSecureContext) connect(true);

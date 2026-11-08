@@ -74,8 +74,8 @@ chorus (part B) with a fill, end on a last hit, start and stop from a loop pedal
 | **keys** | play along on their own sound (SOLO LEAD by default; ALGORITHM changes it); their lights show the chord and the scale |
 | **FX held + keys** | white 1–4 mute drums / bass / chords / synth; black: fill, part, from the top, break, drums out |
 
-The companion's **[Guide](https://philip-bos.github.io/jamtrack-fm1/#guide)** has the chords, the MIDI CC map and the
-loop-pedal setup.
+The companion's **[Guide](https://philip-bos.github.io/jamtrack-fm1/#guide)** walks through every page with the FM-1's
+own screens: the panel, writing chords, MY LINE, performing, saving (and how much fits), the loop pedal and the MIDI map.
 
 ## The companion app
 
@@ -90,7 +90,7 @@ Open **[the companion](https://philip-bos.github.io/jamtrack-fm1/)** in Chrome, 
 | **Library** | the FM-1's 32 places (load, save, rename, delete), as many jams as you like in the browser and as files to share, a backup of them all, the factory's |
 | **User kit** | a sample for each drum: drop in any audio file, hear it as the FM-1 will play it, send it |
 | **Screen** | the FM-1's screen live, its panel playable from the computer, PNG screenshots |
-| **Guide** | a quick start, the chords, the loop pedal, the MIDI map, the panel |
+| **Guide** | the whole manual, with the FM-1's screens: every page and knob, saving and how much fits, loop pedal, MIDI |
 
 <p align="center">
   <img src="docs/img/companion/library.png" width="360" alt="the library">

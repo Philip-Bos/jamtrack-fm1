@@ -148,32 +148,460 @@
 
   <!-- ================================================================ the guide -->
   <section id="tab-guide" class="tab guide" role="tabpanel" hidden>
-    <div class="card">
-      <h2>JAMTRACK in a minute</h2>
+    <nav class="card g-toc" aria-label="the guide's chapters">
+      <h2>The guide</h2>
+      <p class="muted small">Everything JAMTRACK does, one page at a time. The pictures are the FM-1's own screen.</p>
       <ol>
-        <li><b>PLAY</b> starts the band, <b>PLAY</b> again stops it. <b>REC</b> taps the tempo.</li>
-        <li><b>SEQ</b> switches between part <b>A</b> and part <b>B</b> (a verse and a chorus): the change comes at the end of the
-          progression, with a fill. Hold <b>SEQ</b> for a fill now.</li>
-        <li>Turn <b>PRESETS</b> to browse every jam, filed by genre (keep turning to reach the next genre). Nothing changes while you turn: 2.5 s after you stop, the jam under the cursor starts at the next bar (a bar under the list counts down). <b>OCT+</b> loads it now, <b>OCT-</b> never mind. Each genre ends with <b>+ NEW JAM</b>, which generates one.</li>
-        <li>Press <b>ARP</b> for a new jam in the jam's genre. On a page group it changes only that: the
-          chords on EDIT, the grooves on LFO, the sounds on ENV. <b>OCT-</b> and <b>OCT+</b> together undo.</li>
-        <li>Hold <b>SEL</b> and press a key: the jam moves to that key. The numbers stay, so the song stays.</li>
-        <li>The keys play along on their own sound (a lead, by default): turn <b>ALGORITHM</b> to choose another; like PRESETS, it changes 2.5 s after you stop turning (<b>OCT+</b> now, <b>OCT-</b> never mind). GLO → KEYS has its level and more. Their lights show the chord playing (bright) and the scale (dim).</li>
-        <li><b>SAVE</b>, then <b>SAVE</b> again, keeps the jam in one of 32 places.</li>
+        <li><a href="#g-start">Start in a minute</a></li>
+        <li><a href="#g-panel">The FM-1 at a glance</a></li>
+        <li><a href="#g-screen">The PLAY screen</a></li>
+        <li><a href="#g-pages">Pages and knobs</a></li>
+        <li><a href="#g-jams">Choosing a jam</a></li>
+        <li><a href="#g-chords">Writing chords</a></li>
+        <li><a href="#g-sound">The band's sound</a></li>
+        <li><a href="#g-groove">How the band plays</a></li>
+        <li><a href="#g-line">MY LINE: your own synth line</a></li>
+        <li><a href="#g-perform">Effects and performing</a></li>
+        <li><a href="#g-keys">Playing along on the keys</a></li>
+        <li><a href="#g-save">Saving, and how much fits</a></li>
+        <li><a href="#g-settings">Song, MIDI and system settings</a></li>
+        <li><a href="#g-pedal">With a loop pedal</a></li>
+        <li><a href="#g-midi">MIDI control (footswitches)</a></li>
+        <li><a href="#g-companion">The companion app</a></li>
+        <li><a href="#g-lists">Everything in the box</a></li>
+        <li><a href="#g-help">If something's not right</a></li>
       </ol>
+    </nav>
+
+    <!-- ---------------------------------------------------------- start -->
+    <div class="card" id="g-start">
+      <h2>1 · Start in a minute</h2>
+      <div class="g-split">
+        <ol class="g-steps">
+          <li><b>Press PLAY.</b> The band starts: drums, bass, chords and a synth line. Press PLAY again to stop.</li>
+          <li><b>Turn PRESETS</b> to look through the jams, sorted by genre. Stop turning, and 2.5 seconds later the jam
+            under the cursor starts at the next bar.</li>
+          <li><b>Press SEQ</b> to switch from part A (think: verse) to part B (chorus). The band plays a fill and changes
+            at the end of the round.</li>
+          <li><b>Play on the keys.</b> The lit keys are the notes that fit: bright for the chord playing now, dim for the
+            rest of the scale. Any dim or bright key sounds good.</li>
+          <li><b>Press ARP</b> for a brand-new jam in the same genre. Didn't like it? Press <b>OCT-</b> and <b>OCT+</b>
+            together to undo.</li>
+          <li><b>Press SAVE twice</b> to keep it.</li>
+        </ol>
+        <figure class="shot"><img src="guide/home-playing.png" width="240" height="240" alt="The PLAY screen while the band plays: the chord Bm7 in a ring, part A, D major, the next chord, the four players and the progression" loading="lazy">
+          <figcaption>The PLAY screen while the band plays.</figcaption></figure>
+      </div>
+      <p class="g-tip"><b>No FM-1 to hand?</b> <a href="emulator/">The emulator</a> runs the very same firmware in your
+        browser, keys and all.</p>
     </div>
-    <div class="card">
-      <h2>Nashville numbers</h2>
-      <p>Chords are written by their place in the key: in C major <b>1</b> is C, <b>4</b> is F, <b>5</b> is G, <b>6m</b> is
-        A minor. Change the key and the whole progression moves with it. Leave the quality out and the scale picks it
-        (AUTO; the jam's COLOR turns those into 7ths and 9ths). Write one in to choose: <code>maj7 m7 7 m7b5 sus2 sus4 add9
-        maj9 m9 9 6 m6 7sus4 m11 dim dim7 + mM7 madd9 13 6/9 5</code>. <code>b7</code> and <code>#4</code> are borrowed
-        chords; <code>/3 /5 /7</code> put that note in the bass, <code>/1</code> the key's root (a pedal); <code>:2</code>
-        makes a chord last two beats (one bar when left out).</p>
-      <p class="mono">1maj7 6m7 4maj7 5sus4:2 5:2 &nbsp;·&nbsp; 1m7 47 &nbsp;·&nbsp; 17:16 47:8 17:8 57:4 47:4 17:4 57:4</p>
+
+    <!-- ---------------------------------------------------------- panel -->
+    <div class="card" id="g-panel">
+      <h2>2 · The FM-1 at a glance</h2>
+      <svg class="g-fm1" viewBox="100 80 1000 640" role="img" aria-label="The FM-1's panel with JAMTRACK's controls labelled">
+        <rect x="110" y="90" width="980" height="620" rx="44" class="b-body"/>
+        <!-- left knobs -->
+        <g class="k-grey"><circle cx="190" cy="170" r="27"/><circle cx="303" cy="170" r="27"/><circle cx="190" cy="280" r="27"/><circle cx="303" cy="280" r="27"/></g>
+        <text x="190" y="128" class="t-lab">MASTER</text><text x="190" y="215" class="t-sub">volume</text>
+        <text x="303" y="128" class="t-lab">SELECT</text><text x="303" y="215" class="t-sub">tempo · cursor</text>
+        <text x="190" y="238" class="t-lab">PRESETS</text><text x="190" y="325" class="t-sub">choose a jam</text>
+        <text x="303" y="238" class="t-lab">ALGORITHM</text><text x="303" y="325" class="t-sub">keys' sound</text>
+        <rect x="150" y="345" width="80" height="36" rx="8" class="b-act"/><text x="190" y="368" class="t-btn">OCT-</text>
+        <rect x="256" y="345" width="80" height="36" rx="8" class="b-act"/><text x="296" y="368" class="t-btn">OCT+</text>
+        <text x="243" y="402" class="t-sub">keys' octave · rest/hold · undo (both)</text>
+        <!-- screen -->
+        <rect x="392" y="110" width="246" height="246" rx="22" class="b-screen"/>
+        <image href="guide/home-playing.png" x="413" y="131" width="204" height="204"/>
+        <!-- right knobs -->
+        <g><circle cx="715" cy="170" r="26" class="k1"/><circle cx="822" cy="170" r="26" class="k2"/><circle cx="930" cy="170" r="26" class="k3"/><circle cx="1038" cy="170" r="26" class="k4"/></g>
+        <text x="715" y="128" class="t-lab">K1</text><text x="822" y="128" class="t-lab">K2</text><text x="930" y="128" class="t-lab">K3</text><text x="1038" y="128" class="t-lab">K4</text>
+        <text x="876" y="215" class="t-sub">the four settings at the bottom of the screen</text>
+        <!-- buttons -->
+        <g>
+          <rect x="685" y="244" width="57" height="50" rx="8" class="b-page"/><text x="713" y="275" class="t-btn">FX</text>
+          <rect x="751" y="244" width="57" height="50" rx="8" class="b-act"/><text x="779" y="275" class="t-btn">SEL</text>
+          <rect x="816" y="244" width="57" height="50" rx="8" class="b-page"/><text x="844" y="275" class="t-btn">ENV</text>
+          <rect x="882" y="244" width="57" height="50" rx="8" class="b-page"/><text x="910" y="275" class="t-btn">LFO</text>
+          <rect x="947" y="244" width="57" height="50" rx="8" class="b-page"/><text x="975" y="275" class="t-btn">EDIT</text>
+          <rect x="1013" y="244" width="57" height="50" rx="8" class="b-page"/><text x="1041" y="275" class="t-btn">GLO</text>
+          <rect x="685" y="309" width="57" height="50" rx="8" class="b-page"/><text x="713" y="340" class="t-btn">HOME</text>
+          <rect x="751" y="309" width="57" height="50" rx="8" class="b-act"/><text x="779" y="340" class="t-btn">SAVE</text>
+          <rect x="816" y="309" width="57" height="50" rx="8" class="b-act"/><text x="844" y="340" class="t-btn">ARP</text>
+          <rect x="882" y="309" width="57" height="50" rx="8" class="b-play"/><text x="910" y="340" class="t-btn">SEQ</text>
+          <rect x="947" y="309" width="57" height="50" rx="8" class="b-play"/><text x="975" y="340" class="t-btn">PLAY</text>
+          <rect x="1013" y="309" width="57" height="50" rx="8" class="b-play"/><text x="1041" y="340" class="t-btn">REC</text>
+        </g>
+        <!-- keys -->
+        <rect x="118" y="420" width="964" height="280" rx="14" class="b-keybed"/>
+        <g class="w-keys">
+          <rect x="136" y="540" width="46" height="145" rx="20"/><rect x="195" y="540" width="46" height="145" rx="20"/><rect x="254" y="540" width="46" height="145" rx="20"/><rect x="313" y="540" width="46" height="145" rx="20"/>
+          <rect x="372" y="540" width="46" height="145" rx="20" class="c1"/><rect x="431" y="540" width="46" height="145" rx="20"/><rect x="490" y="540" width="46" height="145" rx="20"/><rect x="549" y="540" width="46" height="145" rx="20"/>
+          <rect x="608" y="540" width="46" height="145" rx="20"/><rect x="667" y="540" width="46" height="145" rx="20"/><rect x="726" y="540" width="46" height="145" rx="20"/><rect x="785" y="540" width="46" height="145" rx="20" class="c1"/>
+          <rect x="844" y="540" width="46" height="145" rx="20"/><rect x="903" y="540" width="46" height="145" rx="20"/><rect x="962" y="540" width="46" height="145" rx="20"/><rect x="1021" y="540" width="46" height="145" rx="20"/>
+        </g>
+        <g class="b-keys">
+          <rect x="166" y="436" width="46" height="92" rx="20"/><rect x="225" y="436" width="46" height="92" rx="20"/><rect x="284" y="436" width="46" height="92" rx="20"/>
+          <rect x="402" y="436" width="46" height="92" rx="20"/><rect x="460" y="436" width="46" height="92" rx="20"/>
+          <rect x="578" y="436" width="46" height="92" rx="20"/><rect x="637" y="436" width="46" height="92" rx="20"/><rect x="696" y="436" width="46" height="92" rx="20"/>
+          <rect x="813" y="436" width="46" height="92" rx="20"/><rect x="872" y="436" width="46" height="92" rx="20"/>
+          <rect x="989" y="436" width="46" height="92" rx="20"/>
+        </g>
+        <g class="t-key">
+          <text x="159" y="672">F</text><text x="218" y="672">G</text><text x="277" y="672">A</text><text x="336" y="672">B</text>
+          <text x="395" y="672">C</text><text x="454" y="672">D</text><text x="513" y="672">E</text><text x="572" y="672">F</text>
+          <text x="631" y="672">G</text><text x="690" y="672">A</text><text x="749" y="672">B</text><text x="808" y="672">C</text>
+          <text x="867" y="672">D</text><text x="926" y="672">E</text><text x="985" y="672">F</text><text x="1044" y="672">G</text>
+        </g>
+        <g class="t-keynum">
+          <text x="159" y="600">1</text><text x="218" y="600">2</text><text x="277" y="600">3</text><text x="336" y="600">4</text>
+          <text x="189" y="490">1</text><text x="248" y="490">2</text><text x="307" y="490">3</text><text x="425" y="490">4</text><text x="483" y="490">5</text>
+        </g>
+      </svg>
+      <p class="g-legend">
+        <span><i class="sw b-page"></i>pages</span>
+        <span><i class="sw b-play"></i>transport</span>
+        <span><i class="sw b-act"></i>actions</span>
+        <span><i class="sw c1"></i>C: chord number 1 on EDIT</span>
+        <span><span class="g-num">1–4</span> / <span class="g-num">1–5</span>: the performance keys (FX held)</span>
+      </p>
+      <h3>Buttons: tap, and hold</h3>
+      <table class="cc g-wide">
+        <tr><th>Button</th><th>Tap</th><th>Hold</th></tr>
+        <tr><td>PLAY</td><td>Start or stop the band.</td><td>—</td></tr>
+        <tr><td>SEQ</td><td>Switch part A ↔ B. The change comes at the end of the round, with a fill (it blinks while it waits).</td><td>A fill right now.</td></tr>
+        <tr><td>REC</td><td>Tap the tempo: tap it a few times in time. It flashes on every beat.</td><td>Back to the top of the part, at the next bar.</td></tr>
+        <tr><td>ARP</td><td>Generate: a new jam on PLAY, new chords on EDIT, new grooves on LFO, new sounds on ENV, a new line on MY LINE.</td><td>A whole new jam, from any page.</td></tr>
+        <tr><td>SEL</td><td>Choose which part (A or B) EDIT and PART work on.</td><td>Hold SEL + press a key: the jam moves to that key. Hold SEL + turn SELECT: the keys' sound.</td></tr>
+        <tr><td>SAVE</td><td>Open the save list (it lights up when the jam has unsaved changes). SAVE again saves.</td><td>—</td></tr>
+        <tr><td>HOME</td><td>The PLAY page.</td><td>What the page you're on does, in three lines.</td></tr>
+        <tr><td>EDIT · ENV · LFO · FX · GLO</td><td>Open that group of pages; press again for its next page.</td><td>FX held + keys: mutes, fills, a break (<a href="#g-perform">below</a>).</td></tr>
+        <tr><td>OCT- + OCT+</td><td colspan="2">Pressed together: undo the last generate or load. On their own they move the keys an octave (and do special jobs on EDIT, MY LINE and in lists).</td></tr>
+      </table>
     </div>
-    <div class="card">
-      <h2>With a loop pedal</h2>
+
+    <!-- ---------------------------------------------------------- screen -->
+    <div class="card" id="g-screen">
+      <h2>3 · The PLAY screen</h2>
+      <div class="g-split">
+        <div class="g-anno">
+          <img src="guide/home-playing.png" width="240" height="240" alt="The PLAY screen, numbered" loading="lazy">
+          <i style="left:0px;top:1px">1</i><i style="left:262px;top:1px">2</i><i style="left:0px;top:66px">3</i>
+          <i style="left:262px;top:22px">4</i><i style="left:262px;top:46px">5</i><i style="left:262px;top:70px">6</i>
+          <i style="left:262px;top:106px">7</i><i style="left:0px;top:142px">8</i><i style="left:0px;top:186px">9</i>
+        </div>
+        <ol class="g-callouts">
+          <li><b>Where the jam lives and its name.</b> F1 is factory jam 1, U05 would be your place 5. An orange dot after
+            the name means it has changes you haven't saved.</li>
+          <li><b>The tempo</b> in BPM. It reads <b>EXT</b> while a loop pedal or computer sets the tempo.</li>
+          <li><b>The chord playing now</b>, with its number in the key underneath (6m7). The ring fills up as the chord
+            plays, so you can see the next change coming.</li>
+          <li><b>Part A or B</b>, the genre and the time signature.</li>
+          <li><b>The key and scale</b>: D MAJOR.</li>
+          <li><b>The next chord.</b></li>
+          <li><b>The four players</b>: drums, bass, chords and synth, each bar moving as it plays. A muted player is greyed out.</li>
+          <li><b>The progression</b> of the part playing, the current chord lit.</li>
+          <li><b>The four knobs, K1 to K4</b>, in their own colours: here tempo, key, energy and tape. Every page puts its own four settings here.</li>
+        </ol>
+      </div>
+      <p>When the band is stopped, the screen shows the same things without the movement:</p>
+      <figure class="shot"><img src="guide/home-stopped.png" width="240" height="240" alt="The PLAY screen, stopped" loading="lazy"><figcaption>Stopped: the keys show only the scale.</figcaption></figure>
+    </div>
+
+    <!-- ---------------------------------------------------------- pages -->
+    <div class="card" id="g-pages">
+      <h2>4 · Pages and knobs</h2>
+      <p>Everything you can change lives on a <b>page</b>. Each page has four settings, one for each knob K1–K4, shown at
+        the bottom of the screen in the knob's colour. The pages come in groups, one group per button: press the button
+        to open the group, press it again for the next page in it. The group's button stays lit.</p>
+      <table class="cc g-wide">
+        <tr><th>Button</th><th>Pages (press again for the next)</th></tr>
+        <tr><td>HOME</td><td>PLAY: tempo, key, energy, tape</td></tr>
+        <tr><td>EDIT</td><td>EDIT: the chords of part A or B</td></tr>
+        <tr><td>ENV</td><td>SOUNDS → MIX → TONE → REVERB SENDS → OCTAVES</td></tr>
+        <tr><td>LFO</td><td>STYLES → MY LINE → FEEL → PART → FLOW</td></tr>
+        <tr><td>FX</td><td>EFFECTS</td></tr>
+        <tr><td>GLO</td><td>SONG → MIDI → SYSTEM → KEYS → USER KIT</td></tr>
+      </table>
+      <div class="g-split">
+        <figure class="shot"><img src="guide/help.png" width="240" height="240" alt="HOME held: three lines on what this page does" loading="lazy"><figcaption>Hold HOME on any page: what it does.</figcaption></figure>
+        <ul>
+          <li><b>Lost?</b> Hold HOME for a moment: the screen tells you what the page you're on does.</li>
+          <li><b>Turn faster, go further.</b> Quick turns take bigger steps.</li>
+          <li><b>SELECT</b> is the tempo on most pages. On EDIT it picks the chord, on MY LINE the step.</li>
+          <li>Every change is heard straight away, while the band plays.</li>
+          <li>The FM-1 remembers the jam you're on, unsaved changes included, when you switch it off (after the band has
+            been stopped for a few seconds). To keep a jam for good, <a href="#g-save">save it</a>.</li>
+        </ul>
+      </div>
+    </div>
+
+    <!-- ---------------------------------------------------------- jams -->
+    <div class="card" id="g-jams">
+      <h2>5 · Choosing a jam</h2>
+      <p>A <b>jam</b> is a whole song: its two parts of chords, the key, the tempo, the players, the sounds, the mix and
+        the effects. JAMTRACK comes with <b>160 factory jams</b>, ten in each of 16 genres.</p>
+      <div class="g-gallery">
+        <figure class="shot"><img src="guide/presets.png" width="240" height="240" alt="The PRESETS list: genre headings, jams and + NEW JAM" loading="lazy"><figcaption><b>PRESETS</b>: every jam, sorted by genre.</figcaption></figure>
+        <figure class="shot"><img src="guide/generate.png" width="240" height="240" alt="A new jam generated: STATIC WAVES, INDIE POP" loading="lazy"><figcaption><b>ARP</b>: a new jam, made up on the spot.</figcaption></figure>
+      </div>
+      <ul>
+        <li><b>Turn PRESETS</b> and a list opens on the jam playing. Keep turning: each genre has a heading, then your own
+          jams in that genre, then the factory's, then <b>+ NEW JAM</b>, then the next genre.</li>
+        <li><b>Nothing changes while you turn.</b> Stop for 2.5 seconds and the jam under the cursor starts at the next
+          bar; a bar under the list counts down. <b>OCT+</b> loads it now, <b>OCT-</b> closes the list without changing anything.</li>
+        <li><b>+ NEW JAM</b> makes up a brand-new jam in that genre: chords, players and sounds.</li>
+        <li><b>ARP</b> does the same in the jam's own genre. On some pages it only changes part of the jam:
+          new chords on EDIT, new grooves on the LFO pages, new sounds on the ENV pages. <b>Hold ARP</b> for a whole new jam from anywhere.</li>
+        <li><b>Undo:</b> OCT- and OCT+ together bring the jam before back (and pressing them again swaps back).</li>
+      </ul>
+    </div>
+
+    <!-- ---------------------------------------------------------- chords -->
+    <div class="card" id="g-chords">
+      <h2>6 · Writing chords</h2>
+      <p>Each jam has two parts, <b>A</b> and <b>B</b>, of 1 to 12 chords each. Press <b>EDIT</b> to see them.</p>
+      <div class="g-gallery">
+        <figure class="shot"><img src="guide/edit.png" width="240" height="240" alt="EDIT: part A's chords, the third one selected" loading="lazy"><figcaption>Part A, the cursor on a chord.</figcaption></figure>
+        <figure class="shot"><img src="guide/edit-chord.png" width="240" height="240" alt="EDIT: the cursor moved to another chord" loading="lazy"><figcaption>SELECT moves the cursor.</figcaption></figure>
+        <figure class="shot"><img src="guide/edit-b.png" width="240" height="240" alt="EDIT: part B's chords" loading="lazy"><figcaption>SEL switches to part B.</figcaption></figure>
+      </div>
+      <ol class="g-steps">
+        <li><b>Turn SELECT</b> to put the cursor on a chord. You hear it when the band is stopped.</li>
+        <li><b>Press a key</b> to choose the chord. The keys are numbered from C: <b>C is chord 1</b> (the key's home
+          chord), D is 2, E is 3, F is 4, G is 5, A is 6, B is 7. The black keys give the chords from outside the key,
+          like ♭7 or ♭3. This works the same in every key: in D major, C still means "chord 1", which is D.</li>
+        <li><b>OCT+</b> adds a chord after the cursor (a copy, to change), <b>OCT-</b> removes the cursor's chord.</li>
+        <li><b>SEL</b> switches between part A and part B.</li>
+      </ol>
+      <table class="cc g-wide">
+        <tr><th>Knob</th><th>What it changes</th></tr>
+        <tr><td>K1 CHORD</td><td>Steps through the key's own chords.</td></tr>
+        <tr><td>K2 TYPE</td><td>The kind of chord. AUTO lets the scale decide (major or minor), and the jam's COLOR adds 7ths or
+          9ths. Or pick one: MAJ, m, maj7, m7, 7, sus2, sus4, add9, 9, 6, dim, m7b5 and more (<a href="#g-lists">the full list</a>).</td></tr>
+        <tr><td>K3 BEATS</td><td>How long the chord lasts, 1 to 16 beats.</td></tr>
+        <tr><td>K4 BASS NOTE</td><td>The note in the bass: the chord's ROOT, its 3rd, 5th or 7th, or the key's 1 throughout (a pedal).</td></tr>
+      </table>
+      <h3>Changing the key or the scale</h3>
+      <ul>
+        <li><b>Hold SEL and press a key</b> to move the whole jam to that key. The song stays the same, only higher or lower.
+          The KEY knob on PLAY and SONG does the same.</li>
+        <li><b>Change the scale</b> (GLO → SONG, K3) and the chords follow: switch D major to D minor, and Dmaj7 becomes Dm7,
+          Bm7 becomes B♭maj7, and so on, each chord keeping its 7th or 9th. Chords you wrote from outside the key stay
+          as you wrote them. Switch back and it's exactly as before.</li>
+        <li>The companion's Jam tab lets you write chords by typing them, too.</li>
+      </ul>
+    </div>
+
+    <!-- ---------------------------------------------------------- sound -->
+    <div class="card" id="g-sound">
+      <h2>7 · The band's sound (ENV)</h2>
+      <p>Five pages for how the band sounds. Press <b>ENV</b>, then ENV again for the next. <b>ARP</b> on these pages picks new sounds for the jam.</p>
+      <div class="g-gallery">
+        <figure class="shot"><img src="guide/sounds.png" width="240" height="240" alt="SOUNDS: kit, bass, chords, synth" loading="lazy">
+          <figcaption><b>SOUNDS</b>: the drum kit, and the sounds of the bass, the chords and the synth.</figcaption></figure>
+        <figure class="shot"><img src="guide/mix.png" width="240" height="240" alt="MIX: the four levels" loading="lazy">
+          <figcaption><b>MIX</b>: how loud each player is, 0–100.</figcaption></figure>
+        <figure class="shot"><img src="guide/tone.png" width="240" height="240" alt="TONE: darker or brighter" loading="lazy">
+          <figcaption><b>TONE</b>: each player darker (lower) or brighter (higher); 50 is as it comes.</figcaption></figure>
+        <figure class="shot"><img src="guide/sends.png" width="240" height="240" alt="REVERB SENDS" loading="lazy">
+          <figcaption><b>REVERB SENDS</b>: how much of each player goes into the reverb.</figcaption></figure>
+        <figure class="shot"><img src="guide/octaves.png" width="240" height="240" alt="OCTAVES" loading="lazy">
+          <figcaption><b>OCTAVES</b>: the kit's tuning, and the bass, chords and synth up or down to two octaves.</figcaption></figure>
+      </div>
+      <p class="small muted">The bass sounds are only offered for the bass, and the chord and synth knobs skip them. There
+        are 10 drum kits and a USER kit of your own samples (<a href="#g-settings">GLO → USER KIT</a>).</p>
+    </div>
+
+    <!-- ---------------------------------------------------------- groove -->
+    <div class="card" id="g-groove">
+      <h2>8 · How the band plays (LFO)</h2>
+      <p>Press <b>LFO</b> for the players' styles, then LFO again for the next page. <b>ARP</b> here picks new styles.</p>
+      <div class="g-gallery">
+        <figure class="shot"><img src="guide/styles.png" width="240" height="240" alt="STYLES: groove, bass line, chords, synth line" loading="lazy">
+          <figcaption><b>STYLES</b>: the drum groove (28), the bass line (24), how the chords are played (24) and the synth line (15, or MY LINE).</figcaption></figure>
+        <figure class="shot"><img src="guide/myline.png" width="240" height="240" alt="MY LINE: the piano roll" loading="lazy">
+          <figcaption><b>MY LINE</b>: write the synth's notes yourself (<a href="#g-line">next chapter</a>).</figcaption></figure>
+        <figure class="shot"><img src="guide/feel.png" width="240" height="240" alt="FEEL: swing, human, push, color" loading="lazy">
+          <figcaption><b>FEEL</b>: swing, looseness, push, and the chords' colour.</figcaption></figure>
+        <figure class="shot"><img src="guide/part.png" width="240" height="240" alt="PART: energy, alt beat, rounds, variation" loading="lazy">
+          <figcaption><b>PART</b>: energy and more, for the part SEL picks.</figcaption></figure>
+        <figure class="shot"><img src="guide/flow.png" width="240" height="240" alt="FLOW: fills, chain, switch, count-in" loading="lazy">
+          <figcaption><b>FLOW</b>: fills, and how A and B follow each other.</figcaption></figure>
+      </div>
+      <table class="cc g-wide">
+        <tr><th>Setting</th><th>What it does</th></tr>
+        <tr><td>SWING</td><td>50 is the groove's own feel. Lower straightens it, higher swings harder.</td></tr>
+        <tr><td>HUMAN</td><td>How loose the band plays: 0 is a machine, higher drifts like people do.</td></tr>
+        <tr><td>PUSH</td><td>ON: the chords change an eighth note early, as many pop songs do.</td></tr>
+        <tr><td>COLOR</td><td>TRIADS, SOFT 7THS, 7THS or 9THS, for the chords left on AUTO.</td></tr>
+        <tr><td>ENERGY</td><td>0 to 4: from a whisper (few drums, long notes) to everything in.</td></tr>
+        <tr><td>ALT BEAT</td><td>ON: the drummer plays the groove's second beat in this part.</td></tr>
+        <tr><td>ROUNDS</td><td>How many times the part plays before AUTO A/B moves on (1–8).</td></tr>
+        <tr><td>VARIATION</td><td>0–255: another take on the same groove, bass line and synth line.</td></tr>
+        <tr><td>FILLS</td><td>A drum fill every 4, 8 or 16 bars, at the end of each round, or none.</td></tr>
+        <tr><td>CHAIN</td><td>BY HAND (SEQ switches), AUTO A/B (A, B, A, B… after ROUNDS), or A ONLY.</td></tr>
+        <tr><td>SWITCH</td><td>When SEQ's change comes: at the ROUND END or the NEXT BAR.</td></tr>
+        <tr><td>COUNT-IN</td><td>OFF, or 1 or 2 bars of clicks before the band comes in.</td></tr>
+      </table>
+    </div>
+
+    <!-- ---------------------------------------------------------- my line -->
+    <div class="card" id="g-line">
+      <h2>9 · MY LINE: your own synth line</h2>
+      <div class="g-split">
+        <figure class="shot"><img src="guide/myline.png" width="240" height="240" alt="MY LINE: notes on a grid of 16 steps" loading="lazy">
+          <figcaption>Notes go up, time goes right. The bar above the grid is the step being edited.</figcaption></figure>
+        <div>
+          <p>Write the synth's part yourself, on a piano roll of up to 16 steps (16th notes: one bar of 4/4). Press
+            <b>LFO</b> twice. If the jam has no line yet, it starts from the jam's own hook, ready to change.</p>
+          <ol class="g-steps">
+            <li><b>Turn SELECT</b> to move to a step.</li>
+            <li><b>Press a key</b> to write that note at the step, and hear it. The cursor moves on to the next step,
+              so you can play a line in, one note after another.</li>
+            <li><b>OCT-</b> writes a rest (silence). <b>OCT+</b> holds the note before it a step longer.</li>
+            <li><b>ARP</b> makes up a new line to start from. OCT- + OCT+ undoes it.</li>
+          </ol>
+          <p>As soon as you change something, the synth plays your line (STYLES shows SYNTH LINE: MY LINE).</p>
+        </div>
+      </div>
+      <table class="cc g-wide">
+        <tr><th>Knob</th><th>What it changes</th></tr>
+        <tr><td>K1 NOTE</td><td>The step's note, shown as its number in the key and its name ("5 A"). Turn it down past the lowest note for HOLD and REST.</td></tr>
+        <tr><td>K2 HOW HARD</td><td>NORMAL, SOFT, LOUD or ACCENT.</td></tr>
+        <tr><td>K3 LENGTH</td><td>1 to 16 steps. A shorter line repeats sooner and drifts against the bar, which can sound great.</td></tr>
+        <tr><td>K4 FOLLOWS</td><td>CHORDS: the line moves with each chord, so one line fits the whole song. KEY: it stays where you wrote it.
+          The +SLIDE settings glide from note to note.</td></tr>
+      </table>
+      <p class="g-tip"><b>How "follows the chords" works:</b> you write the line over chord 1. When the band moves to
+        chord 4, the whole line moves up to start from 4, through the notes of the key's scale. It always stays in key.</p>
+      <p><b>In the companion</b> (Jam tab → My line) the same line is a piano roll you click: click to write a note,
+        drag right to hold it, click a note to remove it, right-click (or alt-click) for how hard. The tools above it set
+        the length, follows and slide, move the line up or down a step, shift it in time, or clear it. A playhead
+        shows the step playing.</p>
+    </div>
+
+    <!-- ---------------------------------------------------------- perform -->
+    <div class="card" id="g-perform">
+      <h2>10 · Effects and performing (FX)</h2>
+      <div class="g-gallery">
+        <figure class="shot"><img src="guide/effects.png" width="240" height="240" alt="EFFECTS: reverb, space, tape, glue" loading="lazy">
+          <figcaption><b>EFFECTS</b>: tap FX.</figcaption></figure>
+        <figure class="shot"><img src="guide/perform.png" width="240" height="240" alt="PERFORM: the keys' jobs while FX is held" loading="lazy">
+          <figcaption><b>PERFORM</b>: hold FX.</figcaption></figure>
+      </div>
+      <table class="cc g-wide">
+        <tr><th>EFFECTS knob</th><th>What it does</th></tr>
+        <tr><td>K1 REVERB</td><td>How loud the reverb is.</td></tr>
+        <tr><td>K2 SPACE</td><td>How big the room is.</td></tr>
+        <tr><td>K3 TAPE</td><td>Old-tape character: a little wobble, warmth and saturation.</td></tr>
+        <tr><td>K4 GLUE</td><td>Squeezes the drums together, like a compressor on a drum bus.</td></tr>
+      </table>
+      <h3>Hold FX and press a key</h3>
+      <table class="cc g-wide">
+        <tr><th>Key (from the left)</th><th>What it does</th></tr>
+        <tr><td>White 1 · 2 · 3 · 4</td><td>Mute or unmute the drums · bass · chords · synth.</td></tr>
+        <tr><td>Black 1</td><td>A fill.</td></tr>
+        <tr><td>Black 2</td><td>Switch part A ↔ B.</td></tr>
+        <tr><td>Black 3</td><td>Back to the top of the part.</td></tr>
+        <tr><td>Black 4</td><td>A break: the drums alone. Press again to bring everyone back.</td></tr>
+        <tr><td>Black 5</td><td>Drums out, then back in.</td></tr>
+      </table>
+      <p class="small muted">Let go of FX without pressing a key and you land on the EFFECTS page.</p>
+    </div>
+
+    <!-- ---------------------------------------------------------- keys -->
+    <div class="card" id="g-keys">
+      <h2>11 · Playing along on the keys</h2>
+      <div class="g-gallery">
+        <figure class="shot"><img src="guide/algo.png" width="240" height="240" alt="ALGORITHM: the list of sounds for the keys" loading="lazy">
+          <figcaption><b>ALGORITHM</b>: the sound you play.</figcaption></figure>
+        <figure class="shot"><img src="guide/keys.png" width="240" height="240" alt="KEYS: keys sound, level, mono, reverb" loading="lazy">
+          <figcaption><b>GLO → KEYS</b>: its level, mono and reverb.</figcaption></figure>
+      </div>
+      <ul>
+        <li><b>The keys light up the notes that fit.</b> Bright: the notes of the chord playing now (land on these). Dim:
+          the rest of the scale (good for runs between them). When the band is stopped, only the scale is lit.</li>
+        <li><b>Turn ALGORITHM</b> for another sound. The four leads come first (SOLO LEAD, WHISTLE, BRIGHT LEAD, SAW LEAD), then every
+          other sound. Like PRESETS, it changes 2.5 s after you stop turning (OCT+ now, OCT- never mind).</li>
+        <li><b>OCT- / OCT+</b> move the keys down or up an octave (two at most each way).</li>
+        <li>The keys feel how hard you play them.</li>
+        <li><b>MONO</b> (on the KEYS page) plays one note at a time and slides between them, like a lead synth.
+          <b>POLY</b> plays chords.</li>
+        <li>The keys' sound is yours, not the jam's: it stays when you change jams.</li>
+      </ul>
+    </div>
+
+    <!-- ---------------------------------------------------------- save -->
+    <div class="card" id="g-save">
+      <h2>12 · Saving, and how much fits</h2>
+      <div class="g-split">
+        <figure class="shot"><img src="guide/save.png" width="240" height="240" alt="SAVE TO: the list of your 32 places" loading="lazy">
+          <figcaption>SAVE TO: your 32 places, U01 to U32.</figcaption></figure>
+        <ol class="g-steps">
+          <li><b>Press SAVE.</b> The list opens on the jam's own place, or the first empty one.</li>
+          <li><b>Turn SELECT or PRESETS</b> (or press OCT- / OCT+) to choose a place. Empty places show ---.</li>
+          <li><b>Press SAVE again.</b> The screen says SAVED U05 (for example). Any other button cancels.</li>
+        </ol>
+      </div>
+      <ul>
+        <li>Saving over a place replaces the jam that was there.</li>
+        <li><b>While the band plays</b>, the screen says SAVING AT STOP: the FM-1 writes it once you stop, because writing
+          to memory mid-song would make a gap in the sound. Stop the band before you switch off.</li>
+        <li>Your saved jams appear in the PRESETS list under their genre, before the factory's.</li>
+        <li>To <b>rename or delete</b> a jam, use the companion's Library tab. Names are up to 15 characters: A–Z, 0–9, space and - . '</li>
+      </ul>
+      <h3>How much fits</h3>
+      <table class="cc g-wide">
+        <tr><th>Where</th><th>How many</th><th>Notes</th></tr>
+        <tr><td>Your places on the FM-1</td><td><b>32 jams</b></td><td>U01–U32. Each one is a whole jam: both parts, the
+          players, sounds, mix, effects and MY LINE. Updates keep them.</td></tr>
+        <tr><td>Factory jams</td><td><b>160</b></td><td>Built in, ten per genre. You can't overwrite them, but you can
+          change one and save it in one of your places.</td></tr>
+        <tr><td>The jam you're on</td><td>1</td><td>Remembered at switch-off, unsaved changes too (once the band has been
+          stopped a few seconds).</td></tr>
+        <tr><td>The companion's library</td><td><b>about 3,000 jams</b></td><td>Kept in your browser, on that computer. Use
+          <b>Back up all as a file</b> in the Library tab to keep them safe.</td></tr>
+        <tr><td>Jam files</td><td>no limit</td><td>Each jam can be saved as a small .jam.json file to keep or share.</td></tr>
+        <tr><td>The user kit</td><td><b>9 drums</b></td><td>One sample each: kick, snare, rim, hat, open hat, ride,
+          crash, tom, perc. Up to 1.8–2.9 s per drum, sharing 48 blocks of memory: nine half-second hits use about 33 of them.</td></tr>
+        <tr><td>Your settings</td><td>1 set</td><td>MIDI, the keys' sound, stop mode, click and output: the FM-1's own,
+          the same for every jam.</td></tr>
+      </table>
+    </div>
+
+    <!-- ---------------------------------------------------------- settings -->
+    <div class="card" id="g-settings">
+      <h2>13 · Song, MIDI and system settings (GLO)</h2>
+      <div class="g-gallery">
+        <figure class="shot"><img src="guide/song.png" width="240" height="240" alt="SONG: tempo, key, scale, time" loading="lazy">
+          <figcaption><b>SONG</b>: tempo (40–240), key, scale and time signature.</figcaption></figure>
+        <figure class="shot"><img src="guide/midi.png" width="240" height="240" alt="MIDI: clock in, clock out, channel, start/stop" loading="lazy">
+          <figcaption><b>MIDI</b>: for loop pedals and other gear.</figcaption></figure>
+        <figure class="shot"><img src="guide/system.png" width="240" height="240" alt="SYSTEM: stop, keys sound, click, output" loading="lazy">
+          <figcaption><b>SYSTEM</b>: how the FM-1 behaves.</figcaption></figure>
+        <figure class="shot"><img src="guide/userkit.png" width="240" height="240" alt="USER KIT: kit, tune, glue, width, and the nine drums" loading="lazy">
+          <figcaption><b>USER KIT</b>: your own drum samples.</figcaption></figure>
+      </div>
+      <table class="cc g-wide">
+        <tr><th>Setting</th><th>What it does</th></tr>
+        <tr><td>SCALE</td><td>MAJOR, MINOR, DORIAN, MIXOLYDIAN, LYDIAN, PHRYGIAN or HARM MINOR. The chords follow (<a href="#g-chords">see Writing chords</a>).</td></tr>
+        <tr><td>TIME</td><td>4/4, 3/4, 6/8, 12/8, 2/4, 5/4 or 7/8. Every groove plays in all of them.</td></tr>
+        <tr><td>CLOCK IN</td><td>FOLLOW: when a MIDI clock comes in, the band follows its tempo. IGNORE: it keeps its own.</td></tr>
+        <tr><td>CLOCK OUT</td><td>ON: the FM-1 sends its tempo to a computer over USB.</td></tr>
+        <tr><td>CHANNEL</td><td>The MIDI channel it listens to: ALL, or 1–16.</td></tr>
+        <tr><td>START/STOP</td><td>ON: MIDI start and stop messages start and stop the band.</td></tr>
+        <tr><td>STOP</td><td>AT ONCE, or BAR END: the band plays to the end of the bar and finishes on a last hit.</td></tr>
+        <tr><td>CLICK</td><td>A metronome click with the band.</td></tr>
+        <tr><td>OUTPUT</td><td>The loudest the FM-1 gets, 50–100 %. Lower it if your amp or headphones distort.</td></tr>
+        <tr><td>USER KIT</td><td>Choose KIT: USER to hear your samples. KIT TUNE, GLUE and WIDTH (stereo spread) shape them.
+          The samples come from the companion's User kit tab; a drum with no sample plays the STUDIO kit's.</td></tr>
+      </table>
+    </div>
+
+    <!-- ---------------------------------------------------------- pedal -->
+    <div class="card" id="g-pedal">
+      <h2>14 · With a loop pedal</h2>
       <p>Connect the pedal's MIDI out to the FM-1's MIDI in (the 3.5 mm TRS jack, or USB through a computer). Set the
         pedal to send <b>MIDI clock</b> and <b>START/STOP</b>. Then:</p>
       <ul>
@@ -184,8 +612,10 @@
       </ul>
       <p>GLO → MIDI: <b>CLOCK IN</b> (FOLLOW or IGNORE), <b>CLOCK OUT</b> over USB, the <b>CHANNEL</b>, <b>START/STOP</b> from MIDI.</p>
     </div>
-    <div class="card">
-      <h2>MIDI control (footswitches)</h2>
+
+    <!-- ---------------------------------------------------------- midi -->
+    <div class="card" id="g-midi">
+      <h2>15 · MIDI control (footswitches)</h2>
       <table class="cc">
         <tr><th>CC</th><th>does</th><th>CC</th><th>does</th></tr>
         <tr><td>80</td><td>play / stop</td><td>88–91</td><td>mute drums, bass, chords, synth (toggle)</td></tr>
@@ -194,21 +624,60 @@
         <tr><td>83</td><td>tap tempo</td><td>20–23</td><td>level of drums, bass, chords, synth</td></tr>
         <tr><td>84</td><td>from the top</td><td>1</td><td>energy of the part</td></tr>
         <tr><td>85 / 86</td><td>next / previous jam</td><td>PC n</td><td>jam n (0–31 yours, 32 on the factory's)</td></tr>
-        <tr><td>87</td><td>stop (with the ending, if STOP MODE says)</td><td>notes</td><td>played on the synth's sound</td></tr>
+        <tr><td>87</td><td>stop (with the ending, if STOP says BAR END)</td><td>notes</td><td>played on the keys' sound</td></tr>
       </table>
       <p class="muted small">A footswitch's press (value 64 or more after less) acts; its release does nothing.</p>
     </div>
-    <div class="card">
-      <h2>The panel</h2>
-      <table class="cc">
-        <tr><td>PLAY</td><td>start / stop</td><td>HOME</td><td>the PLAY page (held: what this page does)</td></tr>
-        <tr><td>SEQ</td><td>part A / B (held: fill)</td><td>EDIT</td><td>the progression: SELECT picks a chord, keys set its number (C = 1), OCT+ adds, OCT- removes</td></tr>
-        <tr><td>REC</td><td>tap tempo (held: from the top)</td><td>ENV</td><td>SOUNDS · MIX · TONE · REVERB SENDS · OCTAVES</td></tr>
-        <tr><td>ARP</td><td>generate (held: a whole new jam)</td><td>LFO</td><td>STYLES · MY LINE (the synth's own steps: SELECT the step, keys write, OCT- rest, OCT+ hold) · FEEL · PART · FLOW</td></tr>
-        <tr><td>SEL</td><td>edit part A or B (held + key: the key)</td><td>FX</td><td>EFFECTS (held + keys: mutes, fill, break)</td></tr>
-        <tr><td>SAVE</td><td>save the jam</td><td>GLO</td><td>SONG · MIDI · SYSTEM · KEYS · USER KIT</td></tr>
-        <tr><td>SELECT</td><td>tempo (EDIT: the chord)</td><td>ALGORITHM</td><td>the instrument the keys play</td></tr>
-        <tr><td>PRESETS</td><td>every jam, filed by genre</td><td>K1–K4</td><td>the page's four settings</td></tr>
+
+    <!-- ---------------------------------------------------------- companion -->
+    <div class="card" id="g-companion">
+      <h2>16 · The companion app</h2>
+      <p>This page. Open it in Chrome, Edge or Opera on a computer, plug the FM-1 in over USB and press <b>Connect the FM-1</b>.
+        Nothing to install.</p>
+      <table class="cc g-wide">
+        <tr><th>Tab</th><th>What it's for</th></tr>
+        <tr><td>Jam</td><td>The whole jam on one page, live on the FM-1 as you change it: play and stop, generate, the
+          chords (click them, or type them), the players, MY LINE's piano roll, the sounds, the mix and the effects.</td></tr>
+        <tr><td>Library</td><td>Your 32 places on the FM-1 (load, save, rename, delete), your jams in this browser and as
+          files, a backup of everything, and the 160 factory jams.</td></tr>
+        <tr><td>User kit</td><td>Drop any audio file on a drum. You hear it exactly as the FM-1 will play it, then send it.</td></tr>
+        <tr><td>Screen</td><td>The FM-1's screen live on your computer, its panel clickable, and screenshots.</td></tr>
+        <tr><td>Guide</td><td>You're reading it.</td></tr>
+      </table>
+      <p><a href="flasher/">Install / update</a> puts JAMTRACK on the FM-1 (or the original firmware back). Updating keeps your jams, settings and user kit.</p>
+    </div>
+
+    <!-- ---------------------------------------------------------- lists -->
+    <div class="card" id="g-lists">
+      <h2>17 · Everything in the box</h2>
+      <dl class="g-lists">
+        <dt>16 genres</dt><dd>INDIE POP · DREAM POP · BEDROOM · INDIE FUNK · INDIE ROCK · FOLK · SOUL · CITY POP · ROCK · BLUES · HIP HOP · REGGAE · JAZZ · COUNTRY · SYNTH POP · BALLAD</dd>
+        <dt>28 grooves</dt><dd>STRAIGHT 8 · DREAMY · DISCO · HALF TIME · BOSSA · SHUFFLE · FUNK 16 · BALLAD · ROCK · MOTORIK · STOMP · TOMS · TRAIN · BOOM BAP · LO-FI · ONE DROP · JAZZ RIDE · MACHINE · PUNK · WALTZ · SHAKER · HALF SHUFFLE · BREAKBEAT · TRAP · NEW WAVE · AFROBEAT · MOTOWN · ROCKERS</dd>
+        <dt>24 bass lines</dt><dd>ROOT 8THS · MELODIC · OCTAVES · SPARSE · TRESILLO · FUNK 16 · WALKING · BOOGIE · TWO BEAT · WHOLE · HIP HOP · ONE DROP · MOTOWN · 16THS · PEDAL 1 · DISCO RUN · SYNCOPATED · ROCKERS · 808 SLIDE · ARPEGGIO · BOSSA · OFFBEAT · GALLOP · LOCKED</dd>
+        <dt>24 ways to play chords</dt><dd>HOLD · HALVES · QUARTERS · EIGHTHS · STRUM · FOLK STRUM · OFFBEAT · STABS · BOSSA · SCRATCH · FINGERPICK · ARPEGGIO · TRESILLO · BOOM-CHICK · CHARLESTON · PIANO POP · SKANK · GALLOP · 16TH STRUM · TRAVIS · ARP DOWN · AFRO · RIPPLE · BLOCKS</dd>
+        <dt>15 synth lines + MY LINE</dt><dd>OFF · PAD · ARP 8THS · ARP 16THS · HOOK · MELODY · COUNTER · PULSE · BELLS · STABS · OCTAVES · SEQUENCE · CHIMES · GATED · ARP UP · MY LINE</dd>
+        <dt>10 bass sounds</dt><dd>FINGER · MUTED · PICK · SYNTH · SUB · UPRIGHT · FRETLESS · MOOG · ACID · 808 BASS</dd>
+        <dt>23 chord &amp; synth sounds</dt><dd>RHODES · WURLI · CLEAN GTR · JANGLE · NYLON · ACOUSTIC · ORGAN · JUNO PAD · STRINGS · FELT KEYS · SOFT LEAD · SQUARE · POLYSYNTH · BELLS · VIBES · FLUTE · BRASS · PLUCK · PIANO · MARIMBA · HARP · CLAV · GLASS PAD</dd>
+        <dt>4 leads, for the keys</dt><dd>SOLO LEAD · WHISTLE · BRIGHT LEAD · SAW LEAD</dd>
+        <dt>11 drum kits</dt><dd>VINTAGE · STUDIO · ROOM · BRUSHES · LO-FI · ROCK · CAJON · LM-80 · RHYTHM BOX · 808 · USER</dd>
+        <dt>7 scales</dt><dd>MAJOR · MINOR · DORIAN · MIXOLYDIAN · LYDIAN · PHRYGIAN · HARM MINOR</dd>
+        <dt>7 time signatures</dt><dd>4/4 · 3/4 · 6/8 · 12/8 · 2/4 · 5/4 · 7/8</dd>
+        <dt>24 chord types</dt><dd>MAJ · m · dim · aug · sus2 · sus4 · maj7 · m7 · 7 · m7b5 · add9 · maj9 · m9 · 9 · 6 · m6 · 7sus4 · m11 · dim7 · mM7 · madd9 · 13 · 6/9 · 5 (and AUTO)</dd>
+      </dl>
+    </div>
+
+    <!-- ---------------------------------------------------------- help -->
+    <div class="card" id="g-help">
+      <h2>18 · If something's not right</h2>
+      <table class="cc g-wide">
+        <tr><td>No sound</td><td>Turn MASTER up. Check MIX (ENV, twice) and that no player is muted (greyed out on PLAY: hold FX and press its white key).</td></tr>
+        <tr><td>The tempo says EXT and won't change</td><td>A MIDI clock is coming in and the band follows it. Change the tempo on the clock's side, or set GLO → MIDI → CLOCK IN to IGNORE.</td></tr>
+        <tr><td>A knob does "nothing"</td><td>Each page gives the knobs other jobs. Look at the bottom of the screen, or hold HOME.</td></tr>
+        <tr><td>SEQ blinks but nothing happens</td><td>The change waits for the end of the round. Set FLOW → SWITCH to NEXT BAR to change sooner.</td></tr>
+        <tr><td>It says SAVING AT STOP</td><td>That's normal: stop the band and it's written.</td></tr>
+        <tr><td>I changed a jam by accident</td><td>OCT- + OCT+ undoes a generate or load. Otherwise load the jam again from PRESETS without saving.</td></tr>
+        <tr><td>The companion won't connect</td><td>Use Chrome, Edge or Opera on a computer, with a USB cable that carries data, and close other apps using the FM-1's MIDI.</td></tr>
+        <tr><td>Something worse</td><td>See <a href="https://github.com/Philip-Bos/jamtrack-fm1/blob/main/docs/RECOVERY.md">the recovery guide</a>. The original firmware is always one install away.</td></tr>
       </table>
     </div>
   </section>
