@@ -1767,23 +1767,111 @@ static float atan2_turns(float y, float x)   /* the angle clockwise from the top
         return 0.75f - r;
     return 0.75f + r;
 }
-static void chord_ring(int32_t cx, int32_t cy, int32_t r1, int32_t r0, float frac, uint16_t on, uint16_t off, int32_t y0, int32_t h)
+/* the ring into the canvas, whose top left is the screen's (ox, oy) and w x h: the part of the ring there */
+static void chord_ring(int32_t cx, int32_t cy, int32_t r1, int32_t r0, float frac, uint16_t on, uint16_t off,
+                       int32_t ox, int32_t oy, int32_t w, int32_t h)
 {
-    int32_t x, y;
-    for (y = cy - r1; y <= cy + r1; y++) {
-        if (y < y0 || y >= y0 + h)
-            continue;
-        for (x = cx - r1; x <= cx + r1; x++) {
+    int32_t x, y, xa = cx - r1 > ox ? cx - r1 : ox, xb = cx + r1 < ox + w - 1 ? cx + r1 : ox + w - 1;
+    int32_t ya = cy - r1 > oy ? cy - r1 : oy, yb = cy + r1 < oy + h - 1 ? cy + r1 : oy + h - 1;
+    for (y = ya; y <= yb; y++)
+        for (x = xa; x <= xb; x++) {
             float dx = (float)(x - cx) + 0.5f, dy = (float)(y - cy) + 0.5f, d = dx * dx + dy * dy;
             if (d > (float)(r1 * r1) || d < (float)(r0 * r0))
                 continue;
-            cv_rect(x, y - y0, 1, 1, atan2_turns(dy, dx) <= frac ? on : off);
+            cv_pset(x - ox, y - oy, atan2_turns(dy, dx) <= frac ? on : off);
         }
-    }
 }
 
 #define RING_CX 62
 #define RING_CY (FIELD_Y + 58)
+#define RING_R1 55
+#define RING_R0 49
+/* how far through its chord the band is, 0..1, smooth: the sequencer's steps (16ths) and, between them, the time
+ * since the last one at the tempo (held at the step's end should the next be late: it never runs ahead) */
+static uint32_t ring_step_at;            /* when the step playing began (app_frame sees it change) */
+static float ring_shown;                 /* the fraction the screen shows */
+static uint8_t ring_live;                /* the PLAY page's ring is on the screen, as drawn: it may be moved on */
+static float ring_frac(void)
+{
+    const jt_status_t *st = jt_status();
+    float step_ms, sub;
+    if (!st->playing || st->counting || !st->chord_len)
+        return 0.0f;
+    step_ms = st->bpm > 1.0f ? 15000.0f / st->bpm : 150.0f;
+    sub = fm_clampf((float)since(plat_ms(), ring_step_at) / step_ms, 0.0f, 1.0f);
+    return fm_clampf(((float)st->chord_step + sub) / (float)st->chord_len, 0.0f, 1.0f);
+}
+/* the ring and the chord in it (its name big, its number small), into the canvas at the screen's (ox, oy), w x h */
+static void ring_draw(float frac, int32_t ox, int32_t oy, int32_t w, int32_t h)
+{
+    const jt_status_t *st = jt_status();
+    const jt_jam_t *j = jt_jam();
+    const jt_part_t *p = &j->part[st->part & 1];
+    char t[8], num[16], nm[16];
+    int ci = st->chord < p->n ? st->chord : 0;
+    chord_ring(RING_CX, RING_CY, RING_R1, RING_R0, frac, C_HI, C_LINE, ox, oy, w, h);
+    if (st->counting) {
+        int_text(st->counting, t);
+        text_c(RING_CX - ox, RING_CY - 16 - oy, &FONT_L, t, C_AMB);
+        text_c(RING_CX - ox, RING_CY + 18 - oy, &FONT_T, "COUNT-IN", C_GRAY);
+    } else {
+        const felucca_font_t *f;
+        jt_chord_text(j, &p->c[ci], num, nm);
+        f = text_w(&FONT_L, nm) <= 90 ? &FONT_L : &FONT_M;
+        text_c(RING_CX - ox, RING_CY - (f == &FONT_L ? 18 : 13) - oy, f, nm, st->playing ? C_WHITE : C_HI);
+        text_c(RING_CX - ox, RING_CY + 18 - oy, &FONT_XS, num, C_GRAY);
+    }
+}
+/* the ring moved on, a frame at a time: only the box around the arc it gained is drawn (all of it when it starts
+ * over), so a frame costs a few hundred pixels, not the field */
+static void ring_tick(void)
+{
+    static uint32_t last;
+    uint32_t now = plat_ms();
+    float f = ring_frac(), a0 = ring_shown, a, step;
+    int32_t bx0 = 999, by0 = 999, bx1 = -999, by1 = -999, i, n;
+    if (since(now, last) < 16u)
+        return;                          /* (60 frames a second at most) */
+    if (f >= a0 && (f - a0) * 345.0f < 0.7f)
+        return;                          /* (not a pixel further round: 2 pi 55) */
+    last = now;
+    if (f < a0) {                        /* a new chord: the ring starts over */
+        bx0 = RING_CX - RING_R1;
+        by0 = RING_CY - RING_R1;
+        bx1 = RING_CX + RING_R1;
+        by1 = RING_CY + RING_R1;
+    } else {
+        n = 2 + (int32_t)((f - a0) * 64.0f);
+        step = (f - a0) / (float)(n - 1);
+        for (i = 0; i < n; i++) {
+            float sx, sy;
+            int32_t k;
+            a = a0 + step * (float)i;
+            sx = fm_sin_turns(a);
+            sy = -fm_sin_turns(a + 0.25f);
+            for (k = 0; k < 2; k++) {
+                float r = k ? (float)RING_R1 + 1.0f : (float)RING_R0 - 1.0f;
+                int32_t x = RING_CX + (int32_t)(sx * r) + (sx < 0.0f ? -1 : 0), y = RING_CY + (int32_t)(sy * r) + (sy < 0.0f ? -1 : 0);
+                bx0 = x < bx0 ? x : bx0;
+                bx1 = x > bx1 ? x : bx1;
+                by0 = y < by0 ? y : by0;
+                by1 = y > by1 ? y : by1;
+            }
+        }
+        bx0 -= 1;
+        by0 -= 1;
+        bx1 += 1;
+        by1 += 1;
+    }
+    bx0 = clampi(bx0, RING_CX - RING_R1, RING_CX + RING_R1);
+    bx1 = clampi(bx1, RING_CX - RING_R1, RING_CX + RING_R1);
+    by0 = clampi(by0, RING_CY - RING_R1, RING_CY + RING_R1);
+    by1 = clampi(by1, RING_CY - RING_R1, RING_CY + RING_R1);
+    cv_begin((uint32_t)(bx1 - bx0 + 1), (uint32_t)(by1 - by0 + 1), C_BLACK);
+    ring_draw(f, bx0, by0, bx1 - bx0 + 1, by1 - by0 + 1);
+    cv_blit((uint32_t)bx0, (uint32_t)by0);
+    ring_shown = f;
+}
 static void draw_home_field(void)
 {
     const jt_status_t *st = jt_status();
@@ -1791,22 +1879,14 @@ static void draw_home_field(void)
     const jt_part_t *p = &j->part[st->part & 1];
     char t[32], num[16], nm[16], nnum[16], nnm[16];
     int ci = st->chord < p->n ? st->chord : 0, i, nb = jt_bar_beats(j->meter), y0;
-    float frac = st->playing && st->chord_len ? ((float)st->chord_step + 1.0f) / (float)st->chord_len : 0.0f;
+    float frac = ring_frac();
     jt_chord_text(j, &p->c[ci], num, nm);
     jt_chord_text(j, &p->c[(ci + 1) % p->n], nnum, nnm);
+    ring_shown = frac;
+    ring_live = 1;
     for (y0 = FIELD_Y; y0 < FIELD_Y + 144; y0 += 72) {
         band(y0, 72);
-        /* the ring and the chord in it: its name big, its number small */
-        chord_ring(RING_CX, RING_CY, 55, 49, frac, C_HI, C_LINE, y0, 72);
-        if (st->counting) {
-            int_text(st->counting, t);
-            text_c(RING_CX, RING_CY - 16 - y0, &FONT_L, t, C_AMB);
-            text_c(RING_CX, RING_CY + 18 - y0, &FONT_T, "COUNT-IN", C_GRAY);
-        } else {
-            const felucca_font_t *f = text_w(&FONT_L, nm) <= 90 ? &FONT_L : &FONT_M;
-            text_c(RING_CX, RING_CY - (f == &FONT_L ? 18 : 13) - y0, f, nm, st->playing ? C_WHITE : C_HI);
-            text_c(RING_CX, RING_CY + 18 - y0, &FONT_XS, num, C_GRAY);
-        }
+        ring_draw(frac, 0, y0, 240, 72);
         /* beside it: the parts, the key, what comes next, the beat */
         for (i = 0; i < 2; i++) {
             int on = st->part == i, q = st->queued && st->part != i;
@@ -2050,6 +2130,7 @@ static void draw_overlay(const char *title, const char *const *lines, int n, int
 static void draw_field(void)
 {
     uint32_t now = plat_ms();
+    ring_live = 0;                       /* (draw_home_field says when it's the ring on the screen) */
     if (ui.save_mode) {
         char l[7][24];
         const char *ls[7];
@@ -2241,6 +2322,14 @@ void app_frame(void)
         ui.d_head = ui.d_field = ui.d_knobs = 1;
         ui.cursor = clampi(ui.cursor, 0, edit_part()->n - 1);
     }
+    {
+        static uint32_t ring_key;
+        uint32_t key = (uint32_t)st->chord_step | (uint32_t)st->chord << 8 | (uint32_t)st->part << 16 | (uint32_t)st->playing << 17;
+        if (key != ring_key) {
+            ring_key = key;
+            ring_step_at = now;
+        }
+    }
     if (st->beat_seq != last_seq || st->chord != last_chord || st->part != last_part || st->playing != last_play ||
         st->queued != last_q) {
         last_seq = st->beat_seq;
@@ -2303,6 +2392,8 @@ void app_frame(void)
         ui.d_knobs = 0;
         draw_knobs();
     }
+    if (ring_live && ui.page == PG_HOME && st->playing && !st->counting)
+        ring_tick();                     /* the ring, smooth between the field's redraws */
 }
 
 /* ================================================================ boot */
