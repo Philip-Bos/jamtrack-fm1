@@ -275,3 +275,26 @@ expect sstyle 15
 turn K3 -4
 wait 50
 expect linelen 12
+# USB LEVEL (GLO -> SYSTEM, K2): MASTER at first (the USB audio follows it); up: its own level, the platform's USB
+# audio at full level and MASTER on the speaker after it; down past 1: MASTER again
+tap HOME
+wait 50
+tap GLO
+wait 50
+tap GLO
+wait 50
+tap GLO
+wait 50
+expect page 14
+expect usb_audio_full 0
+turn K2 1
+wait 50
+expect usb_audio_full 1
+turn K2 -1
+wait 120
+turn K2 -1
+wait 120
+expect usb_audio_full 1
+turn K2 -100
+wait 50
+expect usb_audio_full 0

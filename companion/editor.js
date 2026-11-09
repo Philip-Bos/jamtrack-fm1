@@ -202,8 +202,15 @@ function keys() {
   const mono = el("input", { type: "checkbox" });
   mono.checked = !!e[9];
   mono.addEventListener("change", () => { e[9] = mono.checked ? 1 : 0; put(); });
+  const usb = el("input", { type: "range", min: 0, max: 100 }), uo = el("output", {});
+  const usbText = () => { uo.textContent = +usb.value ? usb.value : "MASTER"; };
+  usb.value = String(e[11] || 0);
+  usbText();
+  usb.addEventListener("input", usbText);
+  usb.addEventListener("change", () => { e[11] = +usb.value; put(); });
   box.replaceChildren(el("label", { class: "field" }, el("span", {}, "Sound"), sel), rng("Level", 8),
-    el("label", { class: "field chk" }, mono, el("span", {}, "Mono: one note, sliding to the next (a lead)")), rng("Reverb", 10));
+    el("label", { class: "field chk" }, mono, el("span", {}, "Mono: one note, sliding to the next (a lead)")), rng("Reverb", 10),
+    el("label", { class: "field range", title: "The level of the FM-1's audio over USB. All the way down: it follows MASTER." }, el("span", {}, "USB level"), usb, uo));
 }
 
 // ---------------------------------------------------------------- MY LINE: the synth's own steps, as a piano roll

@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.2: USB LEVEL
+
+- **USB LEVEL** (GLO → SYSTEM, K2; also in the companion's Jam tab): how loud the FM-1 comes into a computer over
+  USB. MASTER (the default) follows the MASTER knob as before; 1–100 gives USB its own level, and MASTER then sets
+  only the speaker and headphones. The headphone side limiter keeps its ceiling for the speaker either way.
+- KEYS SOUND left the SYSTEM page for it (it's on GLO → KEYS and the ALGORITHM knob).
+
 ## 0.2.1: a smooth ring
 
 - **The ring around the chord on PLAY fills smoothly**, following the band between beats instead of jumping a

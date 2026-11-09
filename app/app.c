@@ -334,6 +334,7 @@ static int session_dirty(void) { return jam_dirty; }
 static uint32_t settings_genre(void) { return set.genre; }
 
 /* ================================================================ settings */
+static void usb_level_apply(void);
 static void settings_defaults(void)
 {
     jt_settings_t *e = &set.eng;
@@ -346,6 +347,7 @@ static void settings_defaults(void)
     e->live_level = 75;
     e->live_mono = 1;
     e->live_verb = 25;
+    e->usb_level = 0;
     e->stop_mode = 0;
     e->out_level = 90;
     e->metronome = 0;
@@ -369,10 +371,16 @@ static void settings_load(void)
     set.eng.live_mono &= 1u;
     if (set.eng.live_verb > 100)
         set.eng.live_verb = 25;
+    if (set.eng.usb_level > 100)
+        set.eng.usb_level = 0;
     *jt_settings() = set.eng;
+    usb_level_apply();
 }
 static void settings_changed(void)
 {
+    if (set.eng.usb_level > 100)
+        set.eng.usb_level = 0;
+    usb_level_apply();
     *jt_settings() = set.eng;
     set_dirty = 1;
     changed_at = plat_ms();
@@ -391,18 +399,38 @@ static void settings_from_host(const uint8_t *b)
 }
 
 /* ================================================================ sound plumbing */
+volatile uint32_t app_usb_q12;           /* (app.h: USB LEVEL) */
+static void usb_level_apply(void)        /* the setting to the platform: the level first, then full on (and back) */
+{
+    uint32_t l = set.eng.usb_level;
+    if (l) {
+        app_usb_q12 = l * l * 4096u / 10000u + 1u;   /* (the square, as MASTER's) */
+        plat_usb_audio_full(1);
+    } else {
+        plat_usb_audio_full(0);
+        app_usb_q12 = 0;
+    }
+}
+
 void app_render(int32_t *lr, uint32_t n, uint32_t master_q12)
 {
-    float g;
+    float g, lim = 1.0f;
+    uint32_t usb = app_usb_q12;
     rt_frames += n;
     mute_gain += (mute_target - mute_gain) * 0.5f;
     if (fm_fabsf(mute_target - mute_gain) < 0.002f)
         mute_gain = mute_target;
+    if (usb && master_q12 == 4096u) {    /* USB LEVEL: rendered at it; the speaker gets MASTER's over it after the tap,
+                                          * so the side limiter's ceiling is the speaker's, brought to this level */
+        uint32_t m = plat_master(), gs = m * m >> 12;
+        master_q12 = usb;
+        lim = gs ? (float)usb / (float)gs : 1e6f;
+    }
     g = (float)master_q12 * (1.0f / 4096.0f) * (float)set.eng.out_level * 0.01f * mute_gain;
     jt_render(lr, n, g);
     if (side_ceil < 1.0f) {              /* the side limiter: instant down, back up over ~100 ms */
         static float sg = 1.0f;
-        const float thr = side_ceil * 8300000.0f, rel = 1.0f / (0.1f * 44100.0f);
+        const float thr = side_ceil * 8300000.0f * lim, rel = 1.0f / (0.1f * 44100.0f);
         uint32_t i;
         for (i = 0; i < n; i++) {
             float l = (float)lr[2u * i], r = (float)lr[2u * i + 1u], m = (l + r) * 0.5f, sd = (l - r) * 0.5f;
@@ -434,7 +462,7 @@ enum { PR_NONE, PR_TEMPO, PR_KEY, PR_MODE, PR_METER, PR_ENERGY, PR_TAPE, PR_KIT,
        PR_DTUNE, PR_OCT1, PR_OCT2, PR_OCT3, PR_GROOVE, PR_BSTYLE, PR_CSTYLE, PR_SSTYLE, PR_SWING, PR_HUMAN, PR_PUSH,
        PR_COLOR, PR_VAR, PR_REPS, PR_SEED, PR_FILLS, PR_CHAIN, PR_SWITCH, PR_COUNT, PR_REV, PR_SPACE, PR_GLUE, PR_WIDTH,
        PR_CLKIN, PR_CLKOUT, PR_MIDICH, PR_SSIN, PR_STOPMODE, PR_KEYSND, PR_METRO, PR_OUTLVL, PR_CDEG, PR_CQUAL,
-       PR_CBEATS, PR_CBASS, PR_GENRE, PR_KLEVEL, PR_KMONO, PR_KVERB, PR_LNOTE, PR_LVEL, PR_LLEN, PR_LMODE, PR_N };
+       PR_CBEATS, PR_CBASS, PR_GENRE, PR_KLEVEL, PR_KMONO, PR_KVERB, PR_LNOTE, PR_LVEL, PR_LLEN, PR_LMODE, PR_USB, PR_N };
 
 typedef struct {
     const char *title;
@@ -471,8 +499,8 @@ static const page_t PAGES[PG_N] = {
      {"TEMPO, KEY, SCALE, TIME.", "THE NUMBERS STAY:", "CHANGE THE KEY, THE SONG MOVES"}},
     {"MIDI", GR_GLO, {PR_CLKIN, PR_CLKOUT, PR_MIDICH, PR_SSIN},
      {"CLOCK IN (AUTO FOLLOWS ONE)", "CLOCK OUT OVER USB, CHANNEL,", "START/STOP FROM MIDI"}},
-    {"SYSTEM", GR_GLO, {PR_STOPMODE, PR_KEYSND, PR_METRO, PR_OUTLVL},
-     {"STOP AT ONCE OR AT THE BAR,", "THE KEYS' SOUND, A CLICK,", "THE OUTPUT'S CEILING"}},
+    {"SYSTEM", GR_GLO, {PR_STOPMODE, PR_USB, PR_METRO, PR_OUTLVL},
+     {"STOP AT ONCE OR AT THE BAR,", "USB AUDIO'S LEVEL (OR MASTER'S),", "A CLICK, THE OUTPUT'S CEILING"}},
     {"KEYS", GR_GLO, {PR_KEYSND, PR_KLEVEL, PR_KMONO, PR_KVERB},
      {"WHAT THE KEYS PLAY (ALGORITHM", "TOO), THEIR LEVEL; MONO SLIDES", "NOTE TO NOTE"}},
     {"USER KIT", GR_GLO, {PR_KIT, PR_DTUNE, PR_GLUE, PR_WIDTH},
@@ -569,7 +597,7 @@ static const char *const PR_LABEL[PR_N] = {"", "TEMPO", "KEY", "SCALE", "TIME", 
                                            "COUNT-IN", "REVERB", "SPACE", "GLUE", "WIDTH", "CLOCK IN", "CLOCK OUT",
                                            "CHANNEL", "START/STOP", "STOP", "KEYS SOUND", "CLICK", "OUTPUT", "CHORD",
                                            "TYPE", "BEATS", "BASS NOTE", "GENRE", "LEVEL", "MONO", "REVERB",
-                                           "NOTE", "HOW HARD", "LENGTH", "FOLLOWS"};
+                                           "NOTE", "HOW HARD", "LENGTH", "FOLLOWS", "USB LEVEL"};
 
 /* the 12 numbers a chord may have, as the scale spells them: its own degrees plain, the others flat in a major scale and
  * sharp in a minor one */
@@ -792,6 +820,7 @@ static float param_norm(int id)          /* 0..1, for the dial */
     case PR_KLEVEL: return (float)set.eng.live_level * 0.01f;
     case PR_KMONO: return (float)set.eng.live_mono;
     case PR_KVERB: return (float)set.eng.live_verb * 0.01f;
+    case PR_USB: return (float)set.eng.usb_level * 0.01f;
     case PR_CDEG: return (float)((c->deg & 7) > 6 ? 6 : (c->deg & 7)) / 6.0f;
     case PR_CQUAL: return (float)c->qual / (float)(JQ_N - 1);
     case PR_CBEATS: return (float)(c->beats - 1) / 15.0f;
@@ -868,6 +897,7 @@ static void param_text(int id, char *t)
     case PR_KLEVEL: int_text(set.eng.live_level, t); break;
     case PR_KMONO: text_cpy(t, set.eng.live_mono ? "MONO" : "POLY", 6); break;
     case PR_KVERB: int_text(set.eng.live_verb, t); break;
+    case PR_USB: if (!set.eng.usb_level) text_cpy(t, "MASTER", 8); else int_text(set.eng.usb_level, t); break;
     case PR_CDEG: jt_chord_text(j, c, 0, t); break;
     case PR_CQUAL: text_cpy(t, jt_name(JT_T_QUAL, c->qual), 8); break;
     case PR_CBEATS: int_text(c->beats, t); break;
@@ -934,6 +964,10 @@ static void param_turn(int id, int e, uint32_t knob)
         case PR_KLEVEL: set.eng.live_level = (uint8_t)clampi(set.eng.live_level + d, 0, 100); settings = 1; break;
         case PR_KMONO: set.eng.live_mono = e > 0; settings = 1; break;
         case PR_KVERB: set.eng.live_verb = (uint8_t)clampi(set.eng.live_verb + d, 0, 100); settings = 1; break;
+        case PR_USB:                     /* MASTER, then 1..100 (from MASTER up: 80, a good start) */
+            set.eng.usb_level = (uint8_t)(!set.eng.usb_level && e > 0 ? 80 : clampi(set.eng.usb_level + d, 0, 100));
+            settings = 1;
+            break;
         case PR_OUTLVL: set.eng.out_level = (uint8_t)clampi(set.eng.out_level + d, 50, 100); settings = 1; break;
         case PR_GENRE: set.genre = (uint8_t)wrapi(set.genre + e, (int)jt_count(JT_T_GENRE) + 1); settings = 1; break;
         case PR_CDEG: {                  /* the key's own chords, in turn (a borrowed one: from the keys) */

@@ -190,7 +190,8 @@ typedef struct {                         /* the settings the engine reads (the a
     uint8_t live_level;                  /* 0..100: the keys' level, their own (the band's mutes and levels leave it) */
     uint8_t live_mono;                   /* 1: one note at a time, sliding from note to note (a lead) */
     uint8_t live_verb;                   /* 0..100: the keys' reverb */
-    uint8_t rsv;
+    uint8_t usb_level;                   /* 0: the USB audio input follows MASTER; 1..100: its own level, MASTER the
+                                          * speaker's and headphones' alone (the app: app_usb_q12) */
 } jt_settings_t;
 #define JT_SETTINGS_BYTES 12u
 

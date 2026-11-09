@@ -15,6 +15,11 @@
 #define FM1B_UAC_DEEP 1                  /* the USB audio input keeps a half more in hand */
 #define FM1B_UAC_RING_POOL 1
 #define APP_TOUCH                        /* velocity from the keys (lib/touch.h) */
+/* USB LEVEL (GLO -> SYSTEM): the USB audio input at its own level, not MASTER's. The platform then renders at full
+ * level for the USB tap (plat_usb_audio_full) and puts APP_GAIN on the speaker after it; the app renders at its USB
+ * level instead of full, so the speaker's gain is MASTER's over that: the speaker sounds as it always did */
+extern volatile uint32_t app_usb_q12;   /* the USB audio's level, 0..4096; 0: it follows MASTER (the default) */
+#define APP_GAIN(m) (app_usb_q12 ? (((m) * (m) >> 12) << 12) / app_usb_q12 : (m) * (m) >> 12)
 
 /* the store: the app's objects and the panel's calibration (the platform's). Flash 0xD6000..0xDFFFF and the settings
  * pair at 0xFC000; the user kit's samples have 0x97000..0xC6FFF (kit.c). An object's number is in its record: keep
