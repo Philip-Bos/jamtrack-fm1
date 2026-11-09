@@ -341,9 +341,15 @@ static const patch_t *part_patch(int part)
     return &PATCHES[i];
 }
 
+#ifdef JT_TEST_NOTES                    /* (the engine test: every note the players play, to check where they go) */
+void JT_TEST_NOTES(int part, int note);
+#endif
 static void note_event(int part, int note, int vel, float delay, float gate_samples, int pan, int tie)
 {
     event_t e;
+#ifdef JT_TEST_NOTES
+    JT_TEST_NOTES(part, note);
+#endif
     if (note < 12 || note > 115 || vel <= 0)
         return;
     e.type = EV_NOTE;
@@ -683,6 +689,10 @@ static void play_synth(int s, float delay, int sib, int blen)
                 if (iv == 7 || iv == 0)
                     continue;
                 cand = nearest((c.root + iv) % 12, sq.syn_last ? sq.syn_last : centre);
+                if (cand > centre + 7)   /* within a band round the synth's home: nearest the last note, never */
+                    cand -= 12;          /* climbing (or sinking) round after round */
+                else if (cand < centre - 8)
+                    cand += 12;
                 d = cand - (sq.syn_last ? sq.syn_last : centre);
                 d = d < 0 ? -d : d;
                 if (d < bd) {
@@ -829,6 +839,9 @@ static void part_switch(int to)
     sq.queued = 0;
     sq.crash_next = 1;
     sq.comp_v_of = -1;
+    sq.ncomp_prev = 0;                   /* each part from its own home: the chords' voicing, the counter-line and the bass */
+    sq.syn_last = 0;                     /* start where they always do, so A sounds like A again after B */
+    sq.bass_last = 0;
     prog_layout();
 }
 

@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.3: lines that stay home
+
+- Fixed: the COUNTER synth line could climb round after round (in TUMBLEWEED by more than an octave), and after part B
+  the chords and the counter-line stayed where B left them when A came back (PILLOW TALK, OVERNIGHT, CIRCUIT LOVE,
+  SUNDAY BEST). The counter-line now stays within a band round the synth's home, and each change of part starts the
+  chords, the counter-line and the bass from their home, so A sounds like A again.
+- An engine test plays the jams that drifted through many rounds of B and back to A.
+
 ## 0.2.2: USB LEVEL
 
 - **USB LEVEL** (GLO → SYSTEM, K2; also in the companion's Jam tab): how loud the FM-1 comes into a computer over

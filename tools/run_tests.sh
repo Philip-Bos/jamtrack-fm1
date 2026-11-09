@@ -10,10 +10,10 @@ mkdir -p build/test
 SAN="-fsanitize=address,undefined -fno-sanitize=shift-base -fno-sanitize-recover=all -fno-omit-frame-pointer -g"
 W="-Wall -Wextra -Wno-unused-parameter -Wno-unused-function"
 echo "== engine (ASan, UBSan)"
-cc -O1 $SAN $W -DPLAT_HOST -Iapp/dsp -Ibase/include app/dsp/engine.c app/tests/dsp_test.c -lm -o build/dsp_test_san
+cc -O1 $SAN $W -DPLAT_HOST -Iapp/dsp -Ibase/include -DJT_TEST_NOTES=dsp_test_note app/dsp/engine.c app/tests/dsp_test.c -lm -o build/dsp_test_san
 build/dsp_test_san | tail -1
 echo "== engine (-O2)"
-cc -O2 $W -DPLAT_HOST -Iapp/dsp -Ibase/include app/dsp/engine.c app/tests/dsp_test.c -lm -o build/dsp_test
+cc -O2 $W -DPLAT_HOST -Iapp/dsp -Ibase/include -DJT_TEST_NOTES=dsp_test_note app/dsp/engine.c app/tests/dsp_test.c -lm -o build/dsp_test
 build/dsp_test build/test | tail -2
 echo "== the companion's theory against the firmware's"
 cc -DPLAT_HOST -Iapp/dsp -Iapp -Ibase/include app/dsp/engine.c tools/dump_tables.c -lm -o build/dump_tables

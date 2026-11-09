@@ -40,6 +40,21 @@ static void midi_push(uint32_t st, uint32_t t24)
 }
 
 static int fails;
+
+/* every note the players play (seq.h note_event, built with -DJT_TEST_NOTES=dsp_test_note): where the lines go */
+static double note_sum[4];
+static long note_n[4];
+static int note_hi[4];
+void dsp_test_note(int part, int note);
+void dsp_test_note(int part, int note)
+{
+    note_sum[part & 3] += note;
+    note_n[part & 3]++;
+    if (note > note_hi[part & 3])
+        note_hi[part & 3] = note;
+}
+static void notes_reset(void) { memset(note_sum, 0, sizeof note_sum); memset(note_n, 0, sizeof note_n); memset(note_hi, 0, sizeof note_hi); }
+static double note_mean(int p) { return note_n[p] ? note_sum[p] / (double)note_n[p] : 0; }
 #define CHECK(c, ...) do { if (!(c)) { printf("FAIL: " __VA_ARGS__); printf("\n"); fails++; } } while (0)
 
 /* ---------------------------------------------------------------- rendering */
@@ -358,6 +373,53 @@ int main(int argc, char **argv)
     play_for(0, "audition", 1.0, &s);
     CHECK(rms_db(&s) > -40, "the audition sounds (%.1f dB)", rms_db(&s));
     jt_live(1, 64, 100);
+    /* ---- the lines stay home: round after round of B, then A again, every part where it was (factory jams whose
+     * counter-line climbed an octave and more, and whose chords stayed up after B) */
+    {
+        static const char *const JAMS[][2] = {
+        {"SUNDAY BEST", "4a414d3153554e444159204245535400000000000a0000067003322803000300001a0c0f0600000e1800504e462e3232323212052323000000001e281e234651008a2020008a200a208c20202000000000000000000000000402020000000400050204000102040004000400000004000000040000000400000004000000040000000400000004000000040004030201030004000302040000000400000004000000040000000400000004000000040000000400000004000000040000000400"},
+        {"TUMBLEWEED", "4a414d3154554d424c45574545440000000000000200010d10043228030000000313080d0600050d1000504e462832323232120523230000000019230a2346b3008a200a2000000a208a200c2000000000000000000000000402020000000300030003000400030000000300000004000000040000000400000004000000040000000400000004000000040004030201030003000000030004000300000003000000040000000400000004000000040000000400000004000000040000000400"},
+        {"PILLOW TALK", "4a414d3150494c4c4f572054414c4b000000000005000002f802322803000200040e09000f0006081200504e4634323232321205232300000000232d372346b4008c2020208a20092088202020202000000000000000000002020200000c0400050d04000502040003000400000004000000040000000400000004000000040000000400000004000000040004030201030c040002080400010d0400040904000000040000000400000004000000040000000400000004000000040000000400"},
+        {"OVERNIGHT", "4a414d314f5645524e4947485400000000000000020100039c0432280300020007020206030002081000504e463032323232120523230000000019200f234648008a000c008c20202000000c008f2020200000000000000002020200000d0400030d040005020400030004000000040000000400000004000000040000000400000004000000040000000400040302010507040004090400000d0400000d04000000040000000400000004000000040000000400000004000000040000000400"},
+        };
+        uint32_t k;
+        for (k = 0; k < sizeof JAMS / sizeof JAMS[0]; k++) {
+            uint8_t *b = (uint8_t *)j;
+            double a0[4], b0[4], b1[4], a1[4];
+            int p;
+            for (i = 0; i < sizeof(jt_jam_t); i++) {
+                unsigned v;
+                sscanf(JAMS[k][1] + 2 * i, "%2x", &v);
+                b[i] = (uint8_t)v;
+            }
+            jt_jam_sanitize(j);
+            j->chain = JC_HAND;
+            jt_jam_changed(JX_ALL);
+            jt_play(1);
+            run(6, 0, &s);
+            notes_reset(); run(14, 0, &s);
+            for (p = 0; p < 4; p++) a0[p] = note_mean(p);
+            jt_part_go(1);
+            run(16, 0, &s);
+            notes_reset(); run(16, 0, &s);
+            for (p = 0; p < 4; p++) b0[p] = note_mean(p);
+            run(50, 0, &s);
+            notes_reset(); run(16, 0, &s);
+            for (p = 0; p < 4; p++) b1[p] = note_mean(p);
+            CHECK(note_hi[JP_SYNTH] <= 100, "%s: the synth climbed to note %d", JAMS[k][0], note_hi[JP_SYNTH]);
+            jt_part_go(0);
+            run(16, 0, &s);
+            notes_reset(); run(14, 0, &s);
+            for (p = 0; p < 4; p++) a1[p] = note_mean(p);
+            for (p = JP_BASS; p <= JP_SYNTH; p++) {
+                CHECK(fabs(b1[p] - b0[p]) < 1.5, "%s: part %d drifted in B (%.1f -> %.1f)", JAMS[k][0], p, b0[p], b1[p]);
+                CHECK(fabs(a1[p] - a0[p]) < 1.5, "%s: part %d not home in A again (%.1f -> %.1f)", JAMS[k][0], p, a0[p], a1[p]);
+            }
+            jt_stop_now();
+            run(1.5, 0, &s);
+        }
+    }
+
     play_for(0, "live", 0.5, &s);
     CHECK(rms_db(&s) > -45, "the keys sound (%.1f dB)", rms_db(&s));
     jt_live(0, 64, 0);
