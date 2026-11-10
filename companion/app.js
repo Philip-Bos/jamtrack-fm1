@@ -18,7 +18,7 @@ export const el = (tag, attrs = {}, ...kids) => {
     else if (k.startsWith("on")) e.addEventListener(k.slice(2), v);
     else if (v !== false && v != null) e.setAttribute(k, v === true ? "" : v);
   }
-  for (const k of kids.flat()) if (k != null) e.append(k.nodeType ? k : String(k));
+  for (const k of kids.flat()) if (k != null && k !== false) e.append(k.nodeType ? k : String(k));
   return e;
 };
 export function msg(id, text, kind = "") { const m = $(id); if (m) { m.textContent = text; m.className = "msg " + kind; } }
@@ -69,8 +69,13 @@ function lost() {
 }
 
 // the FM-1 running JAMTRACK: a port with an FM-1's name (or JAMTRACK's) that answers JAMTRACK's HELLO
-export async function connect(quiet = false) {
-  if (app.connected || app.busy) return app.connected;
+let connecting = null;      // one look at a time: a second one (a port's statechange) would answer the first's HELLO
+export function connect(quiet = false) {
+  if (app.connected || app.busy) return Promise.resolve(app.connected);
+  if (!connecting) connecting = look(quiet).finally(() => { connecting = null; });
+  return connecting;
+}
+async function look(quiet) {
   app.wanted = true;
   try {
     const access = await midiAccess();
