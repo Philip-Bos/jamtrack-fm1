@@ -7,11 +7,16 @@
 </p>
 
 <p align="center">
+  <a href="https://youtu.be/cHCjv72eRB8"><b>Watch the video</b></a> ·
   <a href="https://philip-bos.github.io/jamtrack-fm1/emulator/"><b>Try it in your browser</b></a> ·
   <a href="https://philip-bos.github.io/jamtrack-fm1/flasher/"><b>Install it</b></a> ·
   <a href="https://philip-bos.github.io/jamtrack-fm1/"><b>Companion app</b></a> ·
   <a href="https://philip-bos.github.io/jamtrack-fm1/#guide">Guide</a> ·
   <a href="https://github.com/Philip-Bos/jamtrack-fm1/releases">Releases</a>
+</p>
+
+<p align="center">
+  <a href="https://youtu.be/cHCjv72eRB8"><img src="docs/video.jpg" width="560" alt="JAMTRACK on YouTube: a backing band for the FM-1 (click to watch)"></a>
 </p>
 
 <p align="center">
