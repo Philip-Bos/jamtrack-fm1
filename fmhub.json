@@ -1,7 +1,12 @@
 {
-  "what": "A backing band to play over: drums, bass, chords and a synth line follow a chord progression in Nashville numbers, in any key and time signature, in time with a loop pedal's MIDI clock. Indie first, then rock, folk, soul, funk, blues, hip hop and more. 38 factory jams, GENERATE by genre, a user drum kit, and a companion web app to edit, save and share jams.",
+  "what": "A backing band to play over: drums, bass, chords and a synth line follow your chords in any key and time signature, in time with a loop pedal. 160 factory jams in 16 genres, a new jam at a press, your own synth line on a piano roll, and a companion web app to edit and share jams.",
   "author": "PhilipsKnobs",
-  "kinds": ["groovebox"],
+  "kinds": [
+    "groove"
+  ],
+  "play": "https://philip-bos.github.io/jamtrack-fm1/emulator/",
   "editor": "https://philip-bos.github.io/jamtrack-fm1/",
-  "image": "docs/card.png"
+  "cheat": "https://philip-bos.github.io/jamtrack-fm1/#guide",
+  "image": "docs/card.png",
+  "color": "#FFB040"
 }

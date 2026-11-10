@@ -5,7 +5,7 @@
   "author": "PhilipsKnobs",
   "license": "MIT",
   "tagline": "a backing band for the FM-1",
-  "description": "JAMTRACK turns the FM-1 into a backing band to play over: drums, bass, chords and a synth line follow a chord progression written in Nashville numbers, in any key and time signature. Indie, dream pop, bedroom, funk, folk, rock, blues, hip hop and more; acoustic and vintage drum kits plus one of your own; parts A and B, fills, endings, tap tempo and MIDI clock in, START and STOP from a loop pedal. Jams save, and the companion web app edits them.",
+  "description": "JAMTRACK turns the FM-1 into a backing band to play over: drums, bass, chords and a synth line follow a chord progression in any key and time signature, in time with a loop pedal. 160 factory jams in 16 genres, GENERATE by genre, your own synth line on a 16-step piano roll, parts A and B with fills and endings, tap tempo, MIDI clock, START and STOP, a user drum kit, and a companion web app that edits, saves and shares jams.",
   "tags": ["groovebox", "arranger", "chords"],
   "install": "https://philip-bos.github.io/jamtrack-fm1/flasher/",
   "site": "https://philip-bos.github.io/jamtrack-fm1/",
