@@ -12,7 +12,8 @@
   <a href="https://philip-bos.github.io/jamtrack-fm1/flasher/"><b>Install it</b></a> ·
   <a href="https://philip-bos.github.io/jamtrack-fm1/"><b>Companion app</b></a> ·
   <a href="https://philip-bos.github.io/jamtrack-fm1/#guide">Guide</a> ·
-  <a href="https://github.com/Philip-Bos/jamtrack-fm1/releases">Releases</a>
+  <a href="https://github.com/Philip-Bos/jamtrack-fm1/releases">Releases</a> ·
+  <a href="https://ko-fi.com/philipsknobs">Support on Ko-fi</a>
 </p>
 
 <p align="center">
@@ -180,6 +181,9 @@ The tests cover:
   the FM-1's hardware.
 
 JAMTRACK is by **Philip Bos**. MIT; the drum samples are CC0. See [LICENSING.md](LICENSING.md).
+
+JAMTRACK is free. If it makes your jams better and you'd like to say thanks, you can buy me a coffee on
+[Ko-fi](https://ko-fi.com/philipsknobs).
 
 *M-VAVE and FM-1 are trademarks of their owners. JAMTRACK is an independent project, not affiliated with or endorsed by
 M-VAVE. Custom firmware is installed at your own risk.*
