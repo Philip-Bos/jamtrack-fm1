@@ -1,11 +1,13 @@
 # The web apps (companion, flasher) on GitHub Pages: the companion/ folder as it is, nothing built here
-# (tools/release.sh puts the firmware package in it). Settings → Pages → Source: GitHub Actions.
+# (tools/release.sh puts the firmware package in it), plus the screen reader's words files (fm1-reader) at words/:
+# every app/web/words/<id>.json there is, since each build points the reader at its own.
+# Settings → Pages → Source: GitHub Actions.
 name: Pages
 
 on:
   push:
     branches: [main]
-    paths: ["companion/**", ".github/workflows/pages.yml"]
+    paths: ["companion/**", "app/web/words/**", ".github/workflows/pages.yml"]
   workflow_dispatch:
 
 permissions:
@@ -26,8 +28,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
+      - name: The site, with the words files
+        run: |
+          cp -R companion _site
+          mkdir -p _site/words
+          cp app/web/words/*.json _site/words/
       - uses: actions/upload-pages-artifact@v3
         with:
-          path: companion
+          path: _site
       - id: deployment
         uses: actions/deploy-pages@v4
