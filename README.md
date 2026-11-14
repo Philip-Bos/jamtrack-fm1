@@ -187,3 +187,5 @@ JAMTRACK is free. If it makes your jams better and you'd like to say thanks, you
 
 *M-VAVE and FM-1 are trademarks of their owners. JAMTRACK is an independent project, not affiliated with or endorsed by
 M-VAVE. Custom firmware is installed at your own risk.*
+
+You can also try JamTrack in the browser, no flashing needed, in the free community [FM-1 Emulator](https://fm1-emulator.atst.tools/).
