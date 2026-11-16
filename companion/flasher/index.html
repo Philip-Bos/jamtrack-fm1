@@ -39,6 +39,8 @@
         <div class="muted mono" id="fw-sha"></div>
         <label class="small">or another package: <input type="file" id="fw-file" accept=".fwsc"></label>
       </div>
+      <p class="muted small">For every FM-1, the newer ones with the UC25HQ80 flash chip (0xB36014) too: saving and
+        updating work on both.</p>
       <ol class="checks" id="checks">
         <li data-c="midi">Browser: Web MIDI with SysEx (Chrome, Edge, Opera)</li>
         <li data-c="pkg">Package checked: identity, every part's checksum, SHA-256</li>
@@ -62,6 +64,11 @@
       </ol>
       <div class="progress" hidden id="fw-prog"><i></i></div>
       <p id="fw-msg" class="msg" role="status"></p>
+      <p id="fw-newchip" class="note" hidden><b>A newer FM-1?</b> FM-1s sold since autumn 2026 have a different flash chip
+        (0xB36014). JAMTRACK knows it, but some other firmwares don't yet, and on those units they refuse every install,
+        this one included, so trying again won't help. Put the FM-1 back to stock through the chip's own update mode first
+        (<a href="https://thefirmwarehub.com/tools/rescue/#chip" target="_blank" rel="noopener">The Firmware Hub's rescue
+        page</a> shows how, on Windows, Mac and Linux), then install JAMTRACK here.</p>
     </div>
 
     <div class="card">
@@ -95,9 +102,11 @@
       <ol class="small">
         <li>Plug it in and press <b>Find the FM-1</b>. An FM-1 in SAFE MODE or in its update loader is found and can be
           installed or resumed.</li>
-        <li>Still nothing: the chip's own update mode puts stock firmware back with no extra hardware, from a Mac or Linux:
-          <code>fm1_rescue.py</code> (see <code>docs/RECOVERY.md</code> in fm1-base's and JAMTRACK's source). It backs up the whole flash
-          first and never writes the boot area.</li>
+        <li>Still nothing, or another firmware refuses every install: the chip's own update mode puts stock firmware back
+          with no extra hardware:
+          <a href="https://thefirmwarehub.com/tools/rescue/#chip" target="_blank" rel="noopener">The Firmware Hub's rescue
+          page</a> (Windows, Mac, Linux; both flash chips), or felucca-bsp's <code>fm1_rescue.py</code> from a Mac or Linux
+          (see <code>docs/RECOVERY.md</code> in JAMTRACK's source).</li>
         <li>Last resort, with an RP2040 board: <a href="https://github.com/kurogedelic/FM-1-transporter" target="_blank" rel="noopener">FM-1-transporter</a>.</li>
       </ol>
     </div>

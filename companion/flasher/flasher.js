@@ -181,6 +181,7 @@ async function guard(fn) {
 async function install(p, label) {
   await guard(async () => {
     msg("fw-msg", `Installing ${label}. Keep the cable in until this says Done.`);
+    $("fw-newchip").hidden = true;
     try {
       const total = p.image.length;
       const got = await updater.install(p.image, p.product, (name, n, b, pct) => stepUi(name, name === "mode" ? n : b, total, pct), p.sha);
@@ -193,6 +194,9 @@ async function install(p, label) {
       progress(null);
       msg("fw-msg", ERR[e.code] || e.message, "err");
       if (e.code === "lost" || e.code === "noloader") $("fw-resume").hidden = false;
+      // another firmware that refused before a single request: on a newer FM-1 (flash 0xB36014) one that knows only the
+      // first chip never starts its update loader, and every install from it stops here
+      if (e.code === "stopped" && dev && !OURS.test(dev.text) && !STOCK.test(dev.text)) $("fw-newchip").hidden = false;
     }
   });
 }

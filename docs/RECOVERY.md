@@ -32,6 +32,19 @@ hardware:
 It reads and saves the whole flash before anything, never writes the boot area, writes only the sectors that differ
 and reads everything back. Give it the stock packages you have; it picks the one matching the FM-1's boot area.
 
+On a newer FM-1 (the UC25HQ80 flash chip, 0xB36014, in units sold since autumn 2026), use the script from
+[felucca-bsp's main branch](https://github.com/hugelton/felucca-bsp/blob/main/tools/fm1_rescue.py): the copy in
+JAMTRACK's `base/bsp` predates that chip and refuses it. On Windows, or without Python,
+[The Firmware Hub's rescue page](https://thefirmwarehub.com/tools/rescue/#chip) does the same from the browser.
+
+## A newer FM-1 that refuses every install
+
+JAMTRACK knows both flash chips, the first one (Puya P25Q80, 0x856014) and the newer one (UC25HQ80, 0xB36014): it
+saves and updates on either. Some other firmwares know only the first chip. On a newer FM-1 they keep saves in RAM
+and never start their update loader, so every installer stops before writing anything ("the device stopped after 0
+requests"), JAMTRACK's flasher included. Put the FM-1 back to stock through the chip's own update mode (step 4), then
+install JAMTRACK.
+
 ## 5. Last resort
 
 [FM-1-transporter](https://github.com/kurogedelic/FM-1-transporter) with an RP2040 board reads and writes the whole
